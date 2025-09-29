@@ -21,7 +21,7 @@ import {
   Eye
 } from "lucide-react";
 import { mockTasks, mockUsers, mockAreas, getUserById, getAreaById } from "@/data/mockData";
-import { Status } from "@/types/models";
+import { Status } from "@/models/status.enum";
 
 const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,13 +39,13 @@ const Tasks = () => {
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case Status.COMPLETED:
+      case Status.DONE:
         return "bg-success text-success-foreground";
       case Status.IN_PROGRESS:
         return "bg-primary text-primary-foreground";
       case Status.PENDING:
         return "bg-warning text-warning-foreground";
-      case Status.CANCELLED:
+      case Status.REJECTED:
         return "bg-destructive text-destructive-foreground";
       default:
         return "bg-muted text-muted-foreground";
@@ -54,13 +54,13 @@ const Tasks = () => {
 
   const getStatusText = (status: Status) => {
     switch (status) {
-      case Status.COMPLETED:
+      case Status.DONE:
         return "Completada";
       case Status.IN_PROGRESS:
         return "En Progreso";
       case Status.PENDING:
         return "Pendiente";
-      case Status.CANCELLED:
+      case Status.REJECTED:
         return "Cancelada";
       default:
         return status;
@@ -110,8 +110,8 @@ const Tasks = () => {
                 <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value={Status.PENDING}>Pendiente</SelectItem>
                 <SelectItem value={Status.IN_PROGRESS}>En Progreso</SelectItem>
-                <SelectItem value={Status.COMPLETED}>Completada</SelectItem>
-                <SelectItem value={Status.CANCELLED}>Cancelada</SelectItem>
+                <SelectItem value={Status.DONE}>Completada</SelectItem>
+                <SelectItem value={Status.REJECTED}>Cancelada</SelectItem>
               </SelectContent>
             </Select>
 

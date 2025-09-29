@@ -10,24 +10,24 @@ import {
   Activity
 } from "lucide-react";
 import { mockTasks, mockUsers, mockAreas, getUserById, getAreaById } from "@/data/mockData";
-import { Status } from "@/types/models";
+import { Status } from "@/models/status.enum";
 
 const Dashboard = () => {
   const totalTasks = mockTasks.length;
-  const completedTasks = mockTasks.filter(task => task.status === Status.COMPLETED).length;
-  const pendingTasks = mockTasks.filter(task => task.status === Status.PENDING).length;
+  const completedTasks = mockTasks.filter(task => task.status === Status.DONE).length;
+  const pendingTasks = mockTasks.filter(task => task.status === Status.IN_PROGRESS).length;
   const inProgressTasks = mockTasks.filter(task => task.status === Status.IN_PROGRESS).length;
   const completionRate = Math.round((completedTasks / totalTasks) * 100);
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case Status.COMPLETED:
+      case Status.DONE:
         return "bg-success text-success-foreground";
       case Status.IN_PROGRESS:
         return "bg-primary text-primary-foreground";
-      case Status.PENDING:
+      case Status.IN_PROGRESS:
         return "bg-warning text-warning-foreground";
-      case Status.CANCELLED:
+      case Status.REJECTED:
         return "bg-destructive text-destructive-foreground";
       default:
         return "bg-muted text-muted-foreground";
@@ -36,13 +36,13 @@ const Dashboard = () => {
 
   const getStatusText = (status: Status) => {
     switch (status) {
-      case Status.COMPLETED:
+      case Status.DONE:
         return "Completada";
       case Status.IN_PROGRESS:
         return "En Progreso";
-      case Status.PENDING:
+      case Status.IN_PROGRESS:
         return "Pendiente";
-      case Status.CANCELLED:
+      case Status.REJECTED:
         return "Cancelada";
       default:
         return status;
