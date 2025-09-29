@@ -9,7 +9,8 @@ export default class AreaService extends HTTPService {
   }
 
   async getAreas() {
-    const data = await super.get(this.path);
+    const response = await super.get(this.path);
+    const data = response.data || [];
     return data.map((item: any) => Area.fromJson(item));
   }
 

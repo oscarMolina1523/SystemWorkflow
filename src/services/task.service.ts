@@ -9,7 +9,8 @@ export default class TaskService extends HTTPService {
   }
 
   async getTasks() {
-    const data = await super.get(this.path);
+    const response = await super.get(this.path);
+    const data = response.data || []; // <-- usa response.data
     return data.map((item: any) => Task.fromJson(item));
   }
 

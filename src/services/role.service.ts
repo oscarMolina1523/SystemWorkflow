@@ -9,7 +9,8 @@ export default class RoleService extends HTTPService {
   }
 
   async getRoles() {
-    const data = await super.get(this.path);
+    const response = await super.get(this.path);
+    const data = response.data || [];
     return data.map((item: any) => Role.fromJson(item));
   }
 
