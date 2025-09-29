@@ -69,14 +69,14 @@ const Tasks = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Gestión de Tareas</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Tareas</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Administra y supervisa todas las tareas del sistema
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all">
+        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Tarea
         </Button>
@@ -91,7 +91,7 @@ const Tasks = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -139,18 +139,19 @@ const Tasks = () => {
             Tareas ({filteredTasks.length})
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border">
-                <TableHead>Título</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Área</TableHead>
-                <TableHead>Asignado a</TableHead>
-                <TableHead>Creado por</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead className="min-w-[150px]">Título</TableHead>
+                  <TableHead className="min-w-[100px]">Estado</TableHead>
+                  <TableHead className="min-w-[120px] hidden sm:table-cell">Área</TableHead>
+                  <TableHead className="min-w-[140px] hidden md:table-cell">Asignado a</TableHead>
+                  <TableHead className="min-w-[140px] hidden lg:table-cell">Creado por</TableHead>
+                  <TableHead className="min-w-[100px] text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filteredTasks.map((task) => {
                 const assignedUser = getUserById(task.assignedTo);
@@ -159,7 +160,7 @@ const Tasks = () => {
 
                 return (
                   <TableRow key={task.id} className="border-border hover:bg-muted/50">
-                    <TableCell>
+                    <TableCell className="p-4">
                       <div>
                         <div className="font-medium">{task.title}</div>
                         {task.description && (
@@ -169,29 +170,29 @@ const Tasks = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4">
                       <Badge className={getStatusColor(task.status)}>
                         {getStatusText(task.status)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden sm:table-cell">
                       <span className="text-sm">{area?.title}</span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden md:table-cell">
                       <span className="text-sm">{assignedUser?.name}</span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden lg:table-cell">
                       <span className="text-sm">{createdByUser?.name}</span>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm">
+                    <TableCell className="text-right p-4">
+                      <div className="flex justify-end gap-1 sm:gap-2">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -200,7 +201,8 @@ const Tasks = () => {
                 );
               })}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
