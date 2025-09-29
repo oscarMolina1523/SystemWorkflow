@@ -60,7 +60,7 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        const token = await authService.signIn(email, password, "b90a4c28-568b-4b13-a4f6-82087a13c9e6");
+        const token = await authService.signIn(email, password, areaId);
         console.log("Token recibido:", token);
         window.location.href = "/dashboard";
       } else {
