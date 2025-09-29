@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckSquare, Mail, Lock, User, Building2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockData } from "@/data/mockData";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { mockData } from "@/data/mockData";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -36,7 +36,7 @@ const Login = () => {
             <CheckSquare className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">TaskFlow Admin</CardTitle>
+            <CardTitle className="text-2xl font-bold">WorkFlow System</CardTitle>
             <p className="text-muted-foreground">
               {isLogin ? "Ingresa para acceder al panel" : "Crea tu cuenta"}
             </p>
@@ -138,7 +138,7 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="area">Área</Label>
                   <Select value={selectedAreaId} onValueChange={setSelectedAreaId} required={!isLogin}>
                     <SelectTrigger className="pl-9">
@@ -170,7 +170,7 @@ const Login = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
               </>
             )}
 
