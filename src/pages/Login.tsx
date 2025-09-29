@@ -3,16 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckSquare, Mail, Lock } from "lucide-react";
+import { CheckSquare, Mail, Lock, User, Building2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { mockData } from "@/data/mockData";
 
 const Login = () => {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedAreaId, setSelectedAreaId] = useState("");
+  const [selectedRoleId, setSelectedRoleId] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login - redirect to dashboard
-    window.location.href = "/dashboard";
+    if (isLogin) {
+      // Simulate login - redirect to dashboard
+      window.location.href = "/dashboard";
+    } else {
+      // Simulate registration - redirect to dashboard
+      console.log("Registering user:", { name, email, password, selectedAreaId, selectedRoleId });
+      window.location.href = "/dashboard";
+    }
   };
 
   return (
@@ -24,12 +37,57 @@ const Login = () => {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">TaskFlow Admin</CardTitle>
-            <p className="text-muted-foreground">Ingresa para acceder al panel</p>
+            <p className="text-muted-foreground">
+              {isLogin ? "Ingresa para acceder al panel" : "Crea tu cuenta"}
+            </p>
           </div>
         </CardHeader>
         
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <div className="flex mb-6 bg-muted rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                isLogin
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Iniciar Sesión
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                !isLogin
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Registrarse
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Nombre completo</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Juan Pérez"
+                    className="pl-9"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -62,11 +120,65 @@ const Login = () => {
               </div>
             </div>
 
+            {!isLogin && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-9"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required={!isLogin}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="area">Área</Label>
+                  <Select value={selectedAreaId} onValueChange={setSelectedAreaId} required={!isLogin}>
+                    <SelectTrigger className="pl-9">
+                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <SelectValue placeholder="Selecciona un área" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockData.areas.map((area) => (
+                        <SelectItem key={area.id} value={area.id}>
+                          {area.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role">Rol</Label>
+                  <Select value={selectedRoleId} onValueChange={setSelectedRoleId} required={!isLogin}>
+                    <SelectTrigger className="pl-9">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <SelectValue placeholder="Selecciona un rol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockData.roles.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
             <Button 
               type="submit" 
               className="w-full bg-gradient-primary shadow-glow hover:shadow-elegant transition-all"
             >
-              Iniciar Sesión
+              {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
             </Button>
           </form>
         </CardContent>

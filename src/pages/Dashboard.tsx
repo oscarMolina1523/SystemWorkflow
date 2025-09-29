@@ -52,14 +52,14 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Resumen general del sistema de administración de tareas
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card className="bg-gradient-primary border-0 shadow-elegant">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-primary-foreground">
@@ -68,7 +68,7 @@ const Dashboard = () => {
             <CheckSquare className="h-4 w-4 text-primary-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{totalTasks}</div>
+            <div className="text-xl sm:text-2xl font-bold text-primary-foreground">{totalTasks}</div>
             <p className="text-xs text-primary-foreground/80">
               +2 desde la semana pasada
             </p>
@@ -83,7 +83,7 @@ const Dashboard = () => {
             <Users className="h-4 w-4 text-accent-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-accent-foreground">{mockUsers.length}</div>
+            <div className="text-xl sm:text-2xl font-bold text-accent-foreground">{mockUsers.length}</div>
             <p className="text-xs text-accent-foreground/80">
               100% conectados hoy
             </p>
@@ -96,7 +96,7 @@ const Dashboard = () => {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockAreas.length}</div>
+            <div className="text-xl sm:text-2xl font-bold">{mockAreas.length}</div>
             <p className="text-xs text-muted-foreground">
               Departamentos activos
             </p>
@@ -109,7 +109,7 @@ const Dashboard = () => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completionRate}%</div>
+            <div className="text-xl sm:text-2xl font-bold">{completionRate}%</div>
             <p className="text-xs text-muted-foreground">
               Tasa de finalización
             </p>
@@ -118,10 +118,10 @@ const Dashboard = () => {
       </div>
 
       {/* Progress Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="bg-card border-border shadow-elegant">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Activity className="h-5 w-5" />
               Progreso General
             </CardTitle>
@@ -135,17 +135,17 @@ const Dashboard = () => {
               <Progress value={completionRate} className="h-2" />
             </div>
             
-            <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-success">{completedTasks}</div>
+                <div className="text-lg sm:text-2xl font-bold text-success">{completedTasks}</div>
                 <div className="text-xs text-muted-foreground">Completadas</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-primary">{inProgressTasks}</div>
+                <div className="text-lg sm:text-2xl font-bold text-primary">{inProgressTasks}</div>
                 <div className="text-xs text-muted-foreground">En Progreso</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-warning">{pendingTasks}</div>
+                <div className="text-lg sm:text-2xl font-bold text-warning">{pendingTasks}</div>
                 <div className="text-xs text-muted-foreground">Pendientes</div>
               </div>
             </div>
@@ -155,28 +155,28 @@ const Dashboard = () => {
         {/* Recent Tasks */}
         <Card className="bg-card border-border shadow-elegant">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Clock className="h-5 w-5" />
               Tareas Recientes
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {mockTasks.slice(0, 4).map((task) => {
                 const assignedUser = getUserById(task.assignedTo);
                 const area = getAreaById(task.areaId);
                 
                 return (
-                  <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <div className="space-y-1">
-                      <h4 className="font-medium text-sm">{task.title}</h4>
+                  <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors space-y-2 sm:space-y-0">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <h4 className="font-medium text-sm truncate">{task.title}</h4>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{assignedUser?.name}</span>
-                        <span>•</span>
-                        <span>{area?.title}</span>
+                        <span className="truncate">{assignedUser?.name}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="truncate hidden sm:inline">{area?.title}</span>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(task.status)}>
+                    <Badge className={`${getStatusColor(task.status)} text-xs`}>
                       {getStatusText(task.status)}
                     </Badge>
                   </div>

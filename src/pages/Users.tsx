@@ -59,14 +59,14 @@ const Users = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Gestión de Usuarios</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Usuarios</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Administra usuarios, roles y permisos del sistema
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all">
+        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Usuario
         </Button>
@@ -81,7 +81,7 @@ const Users = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -130,18 +130,19 @@ const Users = () => {
             Usuarios ({filteredUsers.length})
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border">
-                <TableHead>Usuario</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead>Área</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead className="min-w-[150px]">Usuario</TableHead>
+                  <TableHead className="min-w-[200px] hidden sm:table-cell">Email</TableHead>
+                  <TableHead className="min-w-[100px]">Rol</TableHead>
+                  <TableHead className="min-w-[120px] hidden md:table-cell">Área</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Estado</TableHead>
+                  <TableHead className="min-w-[100px] text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filteredUsers.map((user) => {
                 const role = getRoleById(user.roleId);
@@ -149,45 +150,45 @@ const Users = () => {
 
                 return (
                   <TableRow key={user.id} className="border-border hover:bg-muted/50">
-                    <TableCell>
+                    <TableCell className="p-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
                             {getInitials(user.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div className="font-medium">{user.name}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium truncate">{user.name}</div>
                           <div className="text-sm text-muted-foreground">ID: {user.id}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{user.email}</span>
+                        <span className="text-sm truncate">{user.email}</span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4">
                       <Badge className={getRoleColor(role?.name || "")}>
                         {role?.name}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden md:table-cell">
                       <span className="text-sm">{area?.title}</span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden lg:table-cell">
                       <Badge className="bg-success text-success-foreground">
                         <UserCheck className="h-3 w-3 mr-1" />
                         Activo
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm">
+                    <TableCell className="text-right p-4">
+                      <div className="flex justify-end gap-1 sm:gap-2">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -196,7 +197,8 @@ const Users = () => {
                 );
               })}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

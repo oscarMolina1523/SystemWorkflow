@@ -32,14 +32,14 @@ const Areas = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Gestión de Áreas</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Áreas</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Administra las áreas y departamentos de la organización
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all">
+        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Área
         </Button>
@@ -61,7 +61,7 @@ const Areas = () => {
       </Card>
 
       {/* Areas Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredAreas.map((area) => {
           const usersInArea = getUsersByArea(area.id);
           const tasksInArea = getTasksByArea(area.id);
@@ -70,20 +70,20 @@ const Areas = () => {
             <Card key={area.id} className="bg-card border-border shadow-elegant hover:shadow-glow transition-all group">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
                       <Building className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{area.title}</CardTitle>
+                    <div className="min-w-0">
+                      <CardTitle className="text-lg truncate">{area.title}</CardTitle>
                       <p className="text-sm text-muted-foreground">ID: {area.id}</p>
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -97,18 +97,18 @@ const Areas = () => {
                   </p>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-                    <Users className="h-4 w-4 text-primary" />
-                    <div>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted/50">
+                    <Users className="h-4 w-4 text-primary flex-shrink-0" />
+                    <div className="min-w-0">
                       <div className="text-sm font-medium">{usersInArea.length}</div>
                       <div className="text-xs text-muted-foreground">Usuarios</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-                    <CheckSquare className="h-4 w-4 text-accent" />
-                    <div>
+                  <div className="flex items-center gap-2 p-2 sm:p-3 rounded-lg bg-muted/50">
+                    <CheckSquare className="h-4 w-4 text-accent flex-shrink-0" />
+                    <div className="min-w-0">
                       <div className="text-sm font-medium">{tasksInArea.length}</div>
                       <div className="text-xs text-muted-foreground">Tareas</div>
                     </div>
@@ -138,17 +138,18 @@ const Areas = () => {
             Resumen de Áreas ({filteredAreas.length})
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border">
-                <TableHead>Área</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead>Usuarios</TableHead>
-                <TableHead>Tareas</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead className="min-w-[150px]">Área</TableHead>
+                  <TableHead className="min-w-[200px] hidden sm:table-cell">Descripción</TableHead>
+                  <TableHead className="min-w-[100px]">Usuarios</TableHead>
+                  <TableHead className="min-w-[100px] hidden md:table-cell">Tareas</TableHead>
+                  <TableHead className="min-w-[100px] text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filteredAreas.map((area) => {
                 const usersInArea = getUsersByArea(area.id);
@@ -156,36 +157,36 @@ const Areas = () => {
 
                 return (
                   <TableRow key={area.id} className="border-border hover:bg-muted/50">
-                    <TableCell>
+                    <TableCell className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
                           <Building className="h-4 w-4 text-primary-foreground" />
                         </div>
-                        <div>
-                          <div className="font-medium">{area.title}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium truncate">{area.title}</div>
                           <div className="text-sm text-muted-foreground">ID: {area.id}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-4 hidden sm:table-cell">
                       <span className="text-sm">{area.description || "-"}</span>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
+                    <TableCell className="p-4">
+                      <Badge variant="outline" className="text-xs">
                         {usersInArea.length} usuario{usersInArea.length !== 1 ? 's' : ''}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
+                    <TableCell className="p-4 hidden md:table-cell">
+                      <Badge variant="outline" className="text-xs">
                         {tasksInArea.length} tarea{tasksInArea.length !== 1 ? 's' : ''}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="outline" size="sm">
+                    <TableCell className="text-right p-4">
+                      <div className="flex justify-end gap-1 sm:gap-2">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -194,7 +195,8 @@ const Areas = () => {
                 );
               })}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

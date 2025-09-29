@@ -125,3 +125,11 @@ export const getTasksByArea = (areaId: string): Task[] => {
 export const getTasksByUser = (userId: string): Task[] => {
   return mockTasks.filter(task => task.assignedTo === userId || task.createdBy === userId);
 };
+
+// Export a default object containing all mock data
+export const mockData = {
+  tasks: mockTasks,
+  users: mockUsers,
+  roles: mockRoles,
+  areas: mockAreas
+};
