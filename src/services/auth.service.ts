@@ -17,6 +17,6 @@ export default class AuthService extends HTTPService {
     const body = { name: username, email: newemail, password: newpassword, areaId: areaId};
     const json = await this.post("auth/register", body);
     console.log("Token recibido en AuthService.signup:", json.token);
-    return new Token(json);
+    return new Token(json.token);
   }
 }
