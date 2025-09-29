@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckSquare, Mail, Lock, User } from "lucide-react";
 import AuthService from "@/services/auth.service";
+import { useNavigate } from "react-router-dom";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // import { mockData } from "@/data/mockData";
 
@@ -20,6 +21,7 @@ const Login = () => {
   // const [selectedAreaId, setSelectedAreaId] = useState("");
   // const [selectedRoleId, setSelectedRoleId] = useState("");
 
+  const navigate = useNavigate();
   useEffect(() => {
     // Verificar si estamos en el cliente y acceder a la URL
     if (typeof window !== "undefined") {
@@ -62,7 +64,7 @@ const Login = () => {
       if (isLogin) {
         const token = await authService.signIn(email, password, areaId);
         localStorage.setItem("authToken", token.token);
-        window.location.href = "/dashboard";
+        navigate("/dashboard");
       } else {
         const name = nameRef.current?.value || "";
         const confirmPassword = confirmPasswordRef.current?.value || "";
@@ -76,7 +78,7 @@ const Login = () => {
 
         const token = await authService.signUp(name, email, password, areaId);
         localStorage.setItem("authToken", token.token);
-        window.location.href = "/dashboard";
+        navigate("/dashboard");
       }
     } catch (error: any) {
       console.error(
