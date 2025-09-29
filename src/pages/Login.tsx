@@ -31,7 +31,7 @@ const Login = () => {
         hostname === "evolutionsystem.sbs" ||
         hostname === "www.evolutionsystem.sbs"
       ) {
-        determinedId = "5c8d2a1b-9e4f-4d6c-8a0b-1f2e3svs5b6a"; // ID para el dominio principal
+        determinedId = "eedf2407cc75b66c"; // ID para el dominio principal
       } else if (hostname.startsWith("jinotepe.")) {
         determinedId = "5c8d2a1b-9e4f-4d6c-8a0b-1f2e3d4c5b6a"; // ID para el subdominio de jinotepe
       } else if (hostname.startsWith("nandaime")) {
