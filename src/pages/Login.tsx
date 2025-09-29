@@ -1,29 +1,75 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckSquare, Mail, Lock, User, Building2 } from "lucide-react";
+import { CheckSquare, Mail, Lock, User } from "lucide-react";
+import AuthService from "@/services/auth.service";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // import { mockData } from "@/data/mockData";
 
+const authService = new AuthService();
+
 const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const areaIdRef = useRef<string | null>(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
   // const [selectedAreaId, setSelectedAreaId] = useState("");
   // const [selectedRoleId, setSelectedRoleId] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Verificar si estamos en el cliente y acceder a la URL
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      let determinedId: string;
+
+      // Lógica de mapeo del dominio a un ID
+      if (
+        hostname === "evolutionsystem.sbs" ||
+        hostname === "www.evolutionsystem.sbs"
+      ) {
+        determinedId = "5c8d2a1b-9e4f-4d6c-8a0b-1f2e3svs5b6a"; // ID para el dominio principal
+      } else if (hostname.startsWith("jinotepe.")) {
+        determinedId = "5c8d2a1b-9e4f-4d6c-8a0b-1f2e3d4c5b6a"; // ID para el subdominio de jinotepe
+      } else if (hostname.startsWith("nandaime")) {
+        determinedId = "8a1b6a7e-4d5c-4f1a-9f23-3a8c5e6b7d41"; //ID para nandaime
+      } else if (hostname.startsWith("chontales")) {
+        determinedId = "b90a4c28-568b-4b13-a4f6-82087a13c9e6"; // ID de chontales
+      } else if (hostname.startsWith("chinandega")) {
+        determinedId = "f3d9e0b1-2c8f-4a3d-8e7c-4a1b2c3d4e5f"; // ID de chinandega
+      }
+
+      areaIdRef.current = determinedId;
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const email = emailRef.current?.value || "";
+    const password = passwordRef.current?.value || "";
+    const areaId = areaIdRef.current || "0";
+
+    if (!email || !password) {
+      console.error("El email y la contraseña son obligatorios.");
+      return;
+    }
+
     if (isLogin) {
-      // Simulate login - redirect to dashboard
+      await authService.signIn(email, password, areaId);
       window.location.href = "/dashboard";
     } else {
-      // Simulate registration - redirect to dashboard
-      console.log("Registering user:", { name, email, password});
+      const name = nameRef.current?.value || "";
+      const confirmPassword = confirmPasswordRef.current?.value || "";
+
+      if (!name || password !== confirmPassword) {
+        console.error("Nombre es obligatorio y las contraseñas no coinciden.");
+        return;
+      }
+      await authService.signUp(name, email, password, areaId);
       window.location.href = "/dashboard";
     }
   };
@@ -36,13 +82,15 @@ const Login = () => {
             <CheckSquare className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">WorkFlow System</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              WorkFlow System
+            </CardTitle>
             <p className="text-muted-foreground">
               {isLogin ? "Ingresa para acceder al panel" : "Crea tu cuenta"}
             </p>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="flex mb-6 bg-muted rounded-lg p-1">
             <button
@@ -72,16 +120,15 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre completo</Label>
+                <Label htmlFor="nameRef">Nombre completo</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="name"
+                    id="nameRef"
                     type="text"
                     placeholder="Juan Pérez"
                     className="pl-9"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    ref={nameRef}
                     required={!isLogin}
                   />
                 </div>
@@ -89,32 +136,30 @@ const Login = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="emailRef">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="email"
-                  type="email"
+                  id="emailRef"
+                  type="emailRef"
                   placeholder="juan@empresa.com"
                   className="pl-9"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  ref={emailRef}
                   required
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="passwordRef">Contraseña</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="password"
-                  type="password"
+                  id="passwordRef"
+                  type="passwordRef"
                   placeholder="••••••••"
                   className="pl-9"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  ref={passwordRef}
                   required
                 />
               </div>
@@ -123,16 +168,17 @@ const Login = () => {
             {!isLogin && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <Label htmlFor="confirmPasswordRef">
+                    Confirmar contraseña
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="confirmPassword"
-                      type="password"
+                      id="confirmPasswordRef"
+                      type="passwordRef"
                       placeholder="••••••••"
                       className="pl-9"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      ref={confirmPasswordRef}
                       required={!isLogin}
                     />
                   </div>
@@ -165,7 +211,7 @@ const Login = () => {
                     <SelectContent>
                       {mockData.roles.map((role) => (
                         <SelectItem key={role.id} value={role.id}>
-                          {role.name}
+                          {role.nameRef}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -174,8 +220,8 @@ const Login = () => {
               </>
             )}
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-gradient-primary shadow-glow hover:shadow-elegant transition-all"
             >
               {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
