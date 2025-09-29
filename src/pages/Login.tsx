@@ -61,7 +61,9 @@ const Login = () => {
     try {
       if (isLogin) {
         const token = await authService.signIn(email, password, areaId);
-        console.log("Token recibido:", token);
+        console.log("Token recibido:", token.token);
+        localStorage.setItem("authToken", token.token);
+        alert(`Token: ${token.token}`);
         window.location.href = "/dashboard";
       } else {
         const name = nameRef.current?.value || "";
@@ -75,7 +77,10 @@ const Login = () => {
         }
 
         const token = await authService.signUp(name, email, password, areaId);
-        console.log("Token recibido al registrar:", token);
+        console.log("Token recibido al registrar:", token.token);
+        console.log("Token recibido en signup:", token.token);
+        localStorage.setItem("authToken", token.token);
+        alert(`Token: ${token.token}`);
         window.location.href = "/dashboard";
       }
     } catch (error: any) {
