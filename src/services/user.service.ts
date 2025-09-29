@@ -9,8 +9,9 @@ export default class UserService extends HTTPService {
   }
 
   async getUsers() {
-    const data = await super.get(this.path);
-    return data.map((item: any) => User.fromJson(item));
+    const response = await super.get(this.path);
+    const usersArray = response.data || [];
+    return usersArray.map((item: any) => User.fromJson(item));
   }
 
   async getById(id: string) {
