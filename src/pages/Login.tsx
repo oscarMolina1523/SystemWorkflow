@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { CheckSquare, Mail, Lock, User } from "lucide-react";
 import AuthService from "@/services/auth.service";
 import { useNavigate } from "react-router-dom";
+import DomainService from "@/services/domain.service";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // import { mockData } from "@/data/mockData";
 
@@ -13,6 +14,7 @@ const authService = new AuthService();
 
 const Login = () => {
   const areaIdRef = useRef<string | null>(null);
+  const [allowRegister, setAllowRegister] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -26,25 +28,16 @@ const Login = () => {
     // Verificar si estamos en el cliente y acceder a la URL
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
-      let determinedId: string;
+      const areaId = DomainService.getAreaId(hostname);
+      areaIdRef.current = areaId;
 
-      // Lógica de mapeo del dominio a un ID
       if (
         hostname === "evolutionsystem.sbs" ||
         hostname === "www.evolutionsystem.sbs"
       ) {
-        determinedId = "eedf2407cc75b66c"; // ID para el dominio principal
-      } else if (hostname.startsWith("jinotepe.")) {
-        determinedId = "5c8d2a1b-9e4f-4d6c-8a0b-1f2e3d4c5b6a"; // ID para el subdominio de jinotepe
-      } else if (hostname.startsWith("nandaime")) {
-        determinedId = "8a1b6a7e-4d5c-4f1a-9f23-3a8c5e6b7d41"; //ID para nandaime
-      } else if (hostname.startsWith("chontales")) {
-        determinedId = "b90a4c28-568b-4b13-a4f6-82087a13c9e6"; // ID de chontales
-      } else if (hostname.startsWith("chinandega")) {
-        determinedId = "f3d9e0b1-2c8f-4a3d-8e7c-4a1b2c3d4e5f"; // ID de chinandega
+        setAllowRegister(false);
+        setIsLogin(true); // Forzar vista de login
       }
-
-      areaIdRef.current = determinedId;
     }
   }, []);
 
@@ -121,21 +114,22 @@ const Login = () => {
             >
               Iniciar Sesión
             </button>
-            <button
-              type="button"
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                !isLogin
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Registrarse
-            </button>
+            {allowRegister && (
+              <button
+                type="button"
+                onClick={() => setIsLogin(false)}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                  !isLogin
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Registrarse
+              </button>
+            )}
           </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
+            {!isLogin && allowRegister && (
               <div className="space-y-2">
                 <Label htmlFor="nameRef">Nombre completo</Label>
                 <div className="relative">
