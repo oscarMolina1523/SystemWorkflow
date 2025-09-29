@@ -29,4 +29,54 @@ export class User extends BaseModel {
     this.areaId = areaId;
     this.roleId = roleId;
   }
+
+  // Construye User a partir de un JSON del backend
+  static fromJson(json: any): User {
+    const id = String(json["id"] || "");
+    const name = String(json["name"] || "");
+    const email = String(json["email"] || "");
+    const password = String(json["password"] || "");
+    const areaId = String(json["areaId"] || "");
+    const roleId = String(json["roleId"] || "");
+
+    return new User({
+      id,
+      name,
+      email,
+      password,
+      areaId,
+      roleId,
+    });
+  }
+
+  // Construye User desde un modelo ya transformado en frontend
+  static fromJsonModel(json: any): User {
+    const id = String(json["id"] || "");
+    const name = String(json["name"] || "");
+    const email = String(json["email"] || "");
+    const password = String(json["password"] || "");
+    const areaId = String(json["areaId"] || "");
+    const roleId = String(json["roleId"] || "");
+
+    return new User({
+      id,
+      name,
+      email,
+      password,
+      areaId,
+      roleId,
+    });
+  }
+
+  // Convierte User en objeto plano para enviar al backend
+  toJsonDTO() {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email,
+      password: this.password,
+      areaId: this.areaId,
+      roleId: this.roleId,
+    };
+  }
 }
