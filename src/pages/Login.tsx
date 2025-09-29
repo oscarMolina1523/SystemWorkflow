@@ -12,7 +12,7 @@ const authService = new AuthService();
 
 const Login = () => {
   const areaIdRef = useRef<string | null>(null);
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -58,19 +58,34 @@ const Login = () => {
       return;
     }
 
-    if (isLogin) {
-      await authService.signIn(email, password, areaId);
-      window.location.href = "/dashboard";
-    } else {
-      const name = nameRef.current?.value || "";
-      const confirmPassword = confirmPasswordRef.current?.value || "";
+    try {
+      if (isLogin) {
+        const token = await authService.signIn(email, password, "b90a4c28-568b-4b13-a4f6-82087a13c9e6");
+        console.log("Token recibido:", token);
+        window.location.href = "/dashboard";
+      } else {
+        const name = nameRef.current?.value || "";
+        const confirmPassword = confirmPasswordRef.current?.value || "";
 
-      if (!name || password !== confirmPassword) {
-        console.error("Nombre es obligatorio y las contraseñas no coinciden.");
-        return;
+        if (!name || password !== confirmPassword) {
+          console.error(
+            "Nombre es obligatorio y las contraseñas no coinciden."
+          );
+          return;
+        }
+
+        const token = await authService.signUp(name, email, password, areaId);
+        console.log("Token recibido al registrar:", token);
+        window.location.href = "/dashboard";
       }
-      await authService.signUp(name, email, password, areaId);
-      window.location.href = "/dashboard";
+    } catch (error: any) {
+      console.error(
+        "Error en login/registro:",
+        error.response?.data || error.message || error
+      );
+      alert(
+        error.response?.data?.message || error.message || "Error desconocido"
+      );
     }
   };
 
@@ -141,7 +156,7 @@ const Login = () => {
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="emailRef"
-                  type="emailRef"
+                  type="email"
                   placeholder="juan@empresa.com"
                   className="pl-9"
                   ref={emailRef}
@@ -156,7 +171,7 @@ const Login = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="passwordRef"
-                  type="passwordRef"
+                  type="password"
                   placeholder="••••••••"
                   className="pl-9"
                   ref={passwordRef}
@@ -175,7 +190,7 @@ const Login = () => {
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="confirmPasswordRef"
-                      type="passwordRef"
+                      type="password"
                       placeholder="••••••••"
                       className="pl-9"
                       ref={confirmPasswordRef}
