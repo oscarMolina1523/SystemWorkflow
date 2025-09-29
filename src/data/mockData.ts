@@ -1,4 +1,9 @@
-import { Task, User, Role, Area, Status } from "@/types/models";
+import Area from "@/models/area.model";
+import Role from "@/models/role.model";
+import { Status } from "@/models/status.enum";
+import Task from "@/models/task.model";
+import { User } from "@/models/user.model";
+
 
 // Mock Roles
 export const mockRoles: Role[] = [
@@ -76,7 +81,7 @@ export const mockTasks: Task[] = [
     id: "3",
     title: "Actualizar base de datos",
     description: "Migrar esquema de base de datos a nueva versión",
-    status: Status.COMPLETED,
+    status: Status.DONE,
     areaId: "1",
     createdBy: "1", 
     assignedTo: "3"
