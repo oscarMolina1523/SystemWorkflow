@@ -13,8 +13,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectedAreaId, setSelectedAreaId] = useState("");
-  const [selectedRoleId, setSelectedRoleId] = useState("");
+  // const [selectedAreaId, setSelectedAreaId] = useState("");
+  // const [selectedRoleId, setSelectedRoleId] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ const Login = () => {
       window.location.href = "/dashboard";
     } else {
       // Simulate registration - redirect to dashboard
-      console.log("Registering user:", { name, email, password, selectedAreaId, selectedRoleId });
+      console.log("Registering user:", { name, email, password});
       window.location.href = "/dashboard";
     }
   };
