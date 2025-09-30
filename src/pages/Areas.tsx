@@ -96,15 +96,11 @@ const Areas = () => {
     try {
       if (editingArea) {
         const updated = await areaService.updateArea(editingArea.id, formData as Area);
-        if (updated) {
-          setAreas(areas.map((a) => (a.id === updated.id ? updated : a)));
-        }
       } else {
         const created = await areaService.addArea(formData as Area);
-        if (created) {
-          setAreas([...areas, created]);
-        }
       }
+      const areaData = await areaService.getAreas();
+      setAreas(areaData);
       setShowModal(false);
     } catch (error) {
       console.error("Error guardando área:", error);
