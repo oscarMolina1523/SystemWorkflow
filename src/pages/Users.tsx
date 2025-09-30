@@ -42,6 +42,17 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [areaFilter, setAreaFilter] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    roleId: "",
+    areaId: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +67,8 @@ const Users = () => {
         setAreas(areasRes);
       } catch (error) {
         console.error("Error cargando datos:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -93,6 +106,54 @@ const Users = () => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  // Modal handlers
+  const handleNewUser = () => {
+    setEditingUser(null);
+    setFormData({ name: "", email: "", roleId: "", areaId: "" });
+    setShowModal(true);
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setFormData({ 
+      name: user.name, 
+      email: user.email, 
+      roleId: user.roleId, 
+      areaId: user.areaId 
+    });
+    setShowModal(true);
+  };
+
+  const handleSaveUser = async () => {
+    try {
+      if (editingUser) {
+        const updated = await userService.updateUser(editingUser.id, formData as User);
+        if (updated) {
+          setUsers(users.map((u) => (u.id === updated.id ? updated : u)));
+        }
+      } else {
+        const created = await userService.addUser(formData as User);
+        if (created) {
+          setUsers([...users, created]);
+        }
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error guardando usuario:", error);
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      await userService.deleteUser(id);
+      setUsers(users.filter((u) => u.id !== id));
+    } catch (error) {
+      console.error("Error eliminando usuario:", error);
+    }
+  };
+
+  if (loading) return <p className="text-center">Cargando usuarios...</p>;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -102,7 +163,7 @@ const Users = () => {
             Administra usuarios, roles y permisos del sistema
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
+        <Button onClick={handleNewUser} className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Usuario
         </Button>
@@ -221,10 +282,10 @@ const Users = () => {
                     </TableCell>
                     <TableCell className="text-right p-4">
                       <div className="flex justify-end gap-1 sm:gap-2">
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditUser(user)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDeleteUser(user.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -237,6 +298,68 @@ const Users = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Crear/Editar */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border-border rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">
+              {editingUser ? "Editar Usuario" : "Nuevo Usuario"}
+            </h2>
+            <div className="space-y-3">
+              <Input
+                placeholder="Nombre completo"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              <Input
+                placeholder="Email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <Select
+                value={formData.roleId}
+                onValueChange={(val) => setFormData({ ...formData, roleId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={formData.areaId}
+                onValueChange={(val) => setFormData({ ...formData, areaId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar área" />
+                </SelectTrigger>
+                <SelectContent>
+                  {areas.map((area) => (
+                    <SelectItem key={area.id} value={area.id}>
+                      {area.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveUser}>
+                {editingUser ? "Actualizar" : "Crear"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
