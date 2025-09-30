@@ -27,11 +27,21 @@ const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
 
+  const isMainDomain =
+    window.location.hostname === "evolutionsystem.sbs" ||
+    window.location.hostname === "www.evolutionsystem.sbs";
+
+  const fetchTasks = async (): Promise<Task[]> => {
+    return isMainDomain
+      ? await taskService.getTasks()
+      : await taskService.getTaskByArea();
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [tasksData, usersData, areasData] = await Promise.all([
-          taskService.getTasks(),
+          fetchTasks(),
           userService.getUsers(),
           areaService.getAreas(),
         ]);
@@ -52,7 +62,10 @@ const Dashboard = () => {
     (task) => task.status === Status.DONE
   ).length;
   const pendingTasks = tasks.filter(
-    (task) => task.status === Status.IN_PROGRESS
+    (task) => task.status === Status.PENDING
+  ).length;
+  const pendingValidation = tasks.filter(
+    (task) => task.status === Status.PENDING_VALIDATION
   ).length;
   const inProgressTasks = tasks.filter(
     (task) => task.status === Status.IN_PROGRESS
@@ -126,37 +139,41 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-accent border-0 shadow-elegant">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-accent-foreground">
-              Usuarios Activos
-            </CardTitle>
-            <Users className="h-4 w-4 text-accent-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold text-accent-foreground">
-              {users.length}
-            </div>
-            <p className="text-xs text-accent-foreground/80">
-              100% conectados hoy
-            </p>
-          </CardContent>
-        </Card>
+        {isMainDomain && (
+          <>
+            <Card className="bg-gradient-accent border-0 shadow-elegant">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-accent-foreground">
+                  Usuarios Activos
+                </CardTitle>
+                <Users className="h-4 w-4 text-accent-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl sm:text-2xl font-bold text-accent-foreground">
+                  {users.length}
+                </div>
+                <p className="text-xs text-accent-foreground/80">
+                  100% conectados hoy
+                </p>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-card border-border shadow-elegant">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Áreas</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">
-              {areas.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Departamentos activos
-            </p>
-          </CardContent>
-        </Card>
+            <Card className="bg-card border-border shadow-elegant">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Áreas</CardTitle>
+                <Building className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl sm:text-2xl font-bold">
+                  {areas.length}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Departamentos activos
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         <Card className="bg-card border-border shadow-elegant">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -212,6 +229,12 @@ const Dashboard = () => {
                   {pendingTasks}
                 </div>
                 <div className="text-xs text-muted-foreground">Pendientes</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-lg sm:text-2xl font-bold text-warning">
+                  {pendingValidation}
+                </div>
+                <div className="text-xs text-muted-foreground">Validando</div>
               </div>
             </div>
           </CardContent>
