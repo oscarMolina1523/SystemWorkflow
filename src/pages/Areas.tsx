@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,15 +20,60 @@ import {
   Users,
   CheckSquare
 } from "lucide-react";
-import { mockAreas, getUsersByArea, getTasksByArea } from "@/data/mockData";
+//import { mockAreas, getUsersByArea, getTasksByArea } from "@/data/mockData";
+
+import AreaService from "@/services/area.service";
+import UserService from "@/services/user.service";
+import TaskService from "@/services/task.service";
+
+import Area from "@/models/area.model";
+import {User} from "@/models/user.model";
+import Task from "@/models/task.model";
+
+const areaService = new AreaService();
+const userService = new UserService();
+const taskService = new TaskService();
 
 const Areas = () => {
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const filteredAreas = mockAreas.filter(area => {
-    return area.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           area.description?.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [areasData, usersData, tasksData] = await Promise.all([
+          areaService.getAreas(),
+          userService.getUsers(),
+          taskService.getTasks(),
+        ]);
+        setAreas(areasData);
+        setUsers(usersData);
+        setTasks(tasksData);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  
+  // Funciones helper para filtrar datos por área
+  const getUsersByArea = (areaId: string) => users.filter(u => u.areaId === areaId);
+  const getTasksByArea = (areaId: string) => tasks.filter(t => t.areaId === areaId);
+
+  // Filtrado de áreas por búsqueda
+  const filteredAreas = areas.filter(area => 
+    area.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    area.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return <p className="text-center">Cargando datos...</p>;
+  }
 
   return (
     <div className="space-y-6">
