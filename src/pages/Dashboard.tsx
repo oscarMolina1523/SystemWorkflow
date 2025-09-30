@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import Task from "@/models/task.model";
 import { User } from "@/models/user.model";
 import Area from "@/models/area.model";
+import DomainService from "@/services/domain.service";
 
 const Dashboard = () => {
   const taskService = new TaskService();
@@ -30,6 +31,8 @@ const Dashboard = () => {
   const isMainDomain =
     window.location.hostname === "evolutionsystem.sbs" ||
     window.location.hostname === "www.evolutionsystem.sbs";
+
+  const sucursales = DomainService.getAreas();
 
   const fetchTasks = async (): Promise<Task[]> => {
     return isMainDomain
@@ -119,6 +122,30 @@ const Dashboard = () => {
           Resumen general del sistema de administración de tareas
         </p>
       </div>
+      {isMainDomain && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {sucursales.map((sucursal) => (
+            <a
+              key={sucursal}
+              href={`https://${sucursal}evolutionsystem.sbs`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Card className="hover:shadow-lg cursor-pointer transition-all">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{sucursal}</CardTitle>
+                  <Building className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Ver tareas de {sucursal}
+                  </p>
+                </CardContent>
+              </Card>
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

@@ -16,4 +16,11 @@ export default class DomainService {
     }
     return null;
   }
+
+  static getAreas() {
+    // Solo devuelve las áreas (excluye el dominio principal)
+    return Object.keys(this.domainMap).filter(
+      (domain) => !["evolutionsystem.sbs", "www.evolutionsystem.sbs"].includes(domain)
+    );
+  }
 }
