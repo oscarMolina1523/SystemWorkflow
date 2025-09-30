@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,14 +22,47 @@ import {
   UserCheck,
   Mail
 } from "lucide-react";
-import { mockUsers, mockRoles, mockAreas, getRoleById, getAreaById } from "@/data/mockData";
+//import { mockUsers, mockRoles, mockAreas, getRoleById, getAreaById } from "@/data/mockData";
+import {User} from "@/models/user.model";
+import Role from "@/models/role.model";
+import Area from "@/models/area.model";
+import UserService from "@/services/user.service";
+import RoleService from "@/services/role.service";
+import AreaService from "@/services/area.service";
+
+
+const userService = new UserService();
+const roleService = new RoleService();
+const areaService = new AreaService();
 
 const Users = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [areaFilter, setAreaFilter] = useState<string>("all");
 
-  const filteredUsers = mockUsers.filter(user => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [usersRes, rolesRes, areasRes] = await Promise.all([
+          userService.getUsers(),
+          roleService.getRoles(),
+          areaService.getAreas(),
+        ]);
+        setUsers(usersRes);
+        setRoles(rolesRes);
+        setAreas(areasRes);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "all" || user.roleId === roleFilter;
@@ -52,6 +85,9 @@ const Users = () => {
         return "bg-secondary text-secondary-foreground";
     }
   };
+
+  const getRoleById = (id: string) => roles.find(r => r.id === id);
+  const getAreaById = (id: string) => areas.find(a => a.id === id);
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -98,7 +134,7 @@ const Users = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los roles</SelectItem>
-                {mockRoles.map((role) => (
+                {roles.map((role) => (
                   <SelectItem key={role.id} value={role.id}>
                     {role.name}
                   </SelectItem>
@@ -112,7 +148,7 @@ const Users = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las áreas</SelectItem>
-                {mockAreas.map((area) => (
+                {areas.map((area) => (
                   <SelectItem key={area.id} value={area.id}>
                     {area.title}
                   </SelectItem>
