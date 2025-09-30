@@ -155,9 +155,9 @@ const Tasks = () => {
   const handleSaveTask = async () => {
     try {
       if (editingTask) {
-        const updated = await taskService.updateTask(editingTask.id, formData);
+        await taskService.updateTask(editingTask.id, formData);
       } else {
-        const created = await taskService.addTask({
+        await taskService.addTask({
           ...formData,
         });
       }
