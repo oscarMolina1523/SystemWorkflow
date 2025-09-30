@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { 
-  LayoutDashboard, 
-  CheckSquare, 
-  Users, 
-  Building, 
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Users,
+  Building,
   ShieldCheck,
   LogOut,
-  Settings
+  Settings,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -24,6 +24,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import DomainService from "@/services/domain.service";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -33,11 +34,10 @@ const navigationItems = [
   { title: "Roles", url: "/roles", icon: ShieldCheck },
 ];
 
-
-const allowedDomainsForFullAccess = [
-  "evolutionsystem.sbs",
-  "www.evolutionsystem.sbs",
-];
+// const allowedDomainsForFullAccess = [
+//   "evolutionsystem.sbs",
+//   "www.evolutionsystem.sbs",
+// ];
 // const bottomItems = [
 //   { title: "Configuración", url: "/settings", icon: Settings },
 // ];
@@ -48,18 +48,20 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  const hostname = window.location.hostname;
-  const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
+  // const hostname = window.location.hostname;
+  // const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
+  const areaId = DomainService.getAreaId(window.location.hostname);
+  const isMainDomain = areaId === "eedf2407cc75b66c"; // valor del dominio principal
 
   const isActive = (path: string) => currentPath === path;
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 ${
-      isActive 
-        ? "bg-gradient-primary text-primary-foreground shadow-glow font-medium" 
+      isActive
+        ? "bg-gradient-primary text-primary-foreground shadow-glow font-medium"
         : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
     }`;
-  
+
   const filteredNavigationItems = navigationItems.filter((item) => {
     if (isMainDomain) return true; // si es el dominio principal, todo
     // si no, solo mostramos Dashboard y Tareas
@@ -68,7 +70,9 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={`${collapsed ? "w-14" : "w-64"} border-r border-sidebar-border bg-sidebar`}
+      className={`${
+        collapsed ? "w-14" : "w-64"
+      } border-r border-sidebar-border bg-sidebar`}
       collapsible="icon"
     >
       <SidebarHeader className="p-4">
@@ -78,7 +82,9 @@ export function AppSidebar() {
               <CheckSquare className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-sidebar-foreground">TaskFlow</h2>
+              <h2 className="text-lg font-semibold text-sidebar-foreground">
+                TaskFlow
+              </h2>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           </div>
@@ -103,9 +109,9 @@ export function AppSidebar() {
               {filteredNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end 
+                    <NavLink
+                      to={item.url}
+                      end
                       className={({ isActive }) => getNavCls({ isActive })}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
