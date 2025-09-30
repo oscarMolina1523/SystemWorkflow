@@ -3,9 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Plus, Search, Filter, Edit, Trash2, Eye } from "lucide-react";
 import { Status } from "@/models/status.enum";
@@ -75,7 +86,8 @@ const Tasks = () => {
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || task.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || task.status === statusFilter;
     const matchesArea = areaFilter === "all" || task.areaId === areaFilter;
 
     return matchesSearch && matchesStatus && matchesArea;
@@ -143,12 +155,14 @@ const Tasks = () => {
   const handleSaveTask = async () => {
     try {
       if (editingTask) {
-        const updated = await taskService.updateTask(editingTask.id, Task.fromJson(formData));
+        const updated = await taskService.updateTask(editingTask.id, formData);
         if (updated) {
           setTasks(tasks.map((t) => (t.id === updated.id ? updated : t)));
         }
       } else {
-        const created = await taskService.addTask(Task.fromJson(formData));
+        const created = await taskService.addTask({
+          ...formData,
+        });
         if (created) {
           setTasks([...tasks, created]);
         }
@@ -162,8 +176,10 @@ const Tasks = () => {
   // Eliminar
   const handleDeleteTask = async (id: string) => {
     try {
-      await taskService.deleteTask(id);
-      setTasks(tasks.filter((t) => t.id !== id));
+      const ok = await taskService.deleteTask(id);
+      if (ok) {
+        setTasks(tasks.filter((t) => t.id !== id));
+      }
     } catch (error) {
       console.error("Error eliminando tarea:", error);
     }
@@ -178,12 +194,17 @@ const Tasks = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Tareas</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Gestión de Tareas
+          </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             Administra y supervisa todas las tareas del sistema
           </p>
         </div>
-        <Button onClick={handleNewTask} className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
+        <Button
+          onClick={handleNewTask}
+          className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Nueva Tarea
         </Button>
@@ -208,7 +229,7 @@ const Tasks = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Estado" />
@@ -252,8 +273,12 @@ const Tasks = () => {
                   <TableHead>Título</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead className="hidden sm:table-cell">Área</TableHead>
-                  <TableHead className="hidden md:table-cell">Asignado a</TableHead>
-                  <TableHead className="hidden lg:table-cell">Creado por</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Creado por
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Asignado a
+                  </TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -264,7 +289,10 @@ const Tasks = () => {
                   const area = getAreaById(task.areaId);
 
                   return (
-                    <TableRow key={task.id} className="border-border hover:bg-muted/50">
+                    <TableRow
+                      key={task.id}
+                      className="border-border hover:bg-muted/50"
+                    >
                       <TableCell>
                         <div>
                           <div className="font-medium">{task.title}</div>
@@ -280,12 +308,23 @@ const Tasks = () => {
                           {getStatusText(task.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">{area?.title}</TableCell>
-                      <TableCell className="hidden md:table-cell">{task.createdBy}</TableCell>
-                      <TableCell className="hidden lg:table-cell">{task.assignedTo}</TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        {area.title}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {createdByUser ? createdByUser.name : "—"}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {assignedUser ? assignedUser.name : "—"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditTask(task)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleEditTask(task)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
@@ -310,7 +349,7 @@ const Tasks = () => {
       {/* Modal Crear/Editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+          <div className="bg-black rounded-lg shadow-lg p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold mb-4">
               {editingTask ? "Editar Tarea" : "Nueva Tarea"}
             </h2>
@@ -318,58 +357,94 @@ const Tasks = () => {
               <Input
                 placeholder="Título"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
               />
               <Input
                 placeholder="Descripción"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
               />
-              <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val as Status })}>
+              <Select
+                value={formData.status}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, status: val as Status })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={Status.PENDING}>Pendiente</SelectItem>
-                  <SelectItem value={Status.IN_PROGRESS}>En Progreso</SelectItem>
+                  <SelectItem value={Status.IN_PROGRESS}>
+                    En Progreso
+                  </SelectItem>
                   <SelectItem value={Status.DONE}>Completada</SelectItem>
                   <SelectItem value={Status.REJECTED}>Cancelada</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={formData.areaId} onValueChange={(val) => setFormData({ ...formData, areaId: val })}>
+              <Select
+                value={formData.areaId}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, areaId: val })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Área" />
                 </SelectTrigger>
                 <SelectContent>
                   {areas.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>{a.title}</SelectItem>
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.title}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={formData.assignedTo} onValueChange={(val) => setFormData({ ...formData, assignedTo: val })}>
+              <Select
+                value={formData.assignedTo}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, assignedTo: val })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Asignado a" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={formData.createdBy} onValueChange={(val) => setFormData({ ...formData, createdBy: val })}>
+              <Select
+                value={formData.createdBy}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, createdBy: val })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Creado por" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="mt-6 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowModal(false)}>Cancelar</Button>
-              <Button onClick={handleSaveTask}>{editingTask ? "Actualizar" : "Crear"}</Button>
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveTask}>
+                {editingTask ? "Actualizar" : "Crear"}
+              </Button>
             </div>
           </div>
         </div>
