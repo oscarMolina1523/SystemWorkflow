@@ -33,9 +33,9 @@ const navigationItems = [
   { title: "Roles", url: "/roles", icon: ShieldCheck },
 ];
 
-const bottomItems = [
-  { title: "Configuración", url: "/settings", icon: Settings },
-];
+// const bottomItems = [
+//   { title: "Configuración", url: "/settings", icon: Settings },
+// ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -107,7 +107,7 @@ export function AppSidebar() {
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
-              {bottomItems.map((item) => (
+              {/* {bottomItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
@@ -119,7 +119,7 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+              ))} */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
