@@ -31,9 +31,19 @@
 <h2 align="left">🚀 Ejecución</h2>
 
 ###
+```bash
+#clonar el repositorio
+git clone https://github.com/oscarMolina1523/SystemWorkflow.git
 
-<p align="left">git clone https://github.com/oscarMolina1523/SystemWorkflow.git<br>cd SystemWorkflow<br>npm install<br>npm run dev</p>
+#inavegar a la carpeta del proyecto
+cd SystemWorkflow
 
+#instalar dependencias
+npm install
+
+#correr el proyecto en local
+npm run dev
+```
 ###
 
 <h2 align="left">📂 Estructura del proyecto</h2>
