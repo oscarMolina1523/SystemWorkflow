@@ -143,15 +143,13 @@ const Roles = () => {
     try {
       if (editingRole) {
         const updated = await roleService.updateRole(editingRole.id, formData as Role);
-        if (updated) {
-          setRoles(roles.map((r) => (r.id === updated.id ? updated : r)));
-        }
+        
       } else {
         const created = await roleService.addRole(formData as Role);
-        if (created) {
-          setRoles([...roles, created]);
-        }
+        
       }
+      const roleData = await roleService.getRoles();
+      setRoles(roleData);
       setShowModal(false);
     } catch (error) {
       console.error("Error guardando rol:", error);
