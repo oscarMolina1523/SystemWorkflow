@@ -309,12 +309,12 @@ const Tasks = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        {area.title}
+                        {area?.title || "—"}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                       <TableCell className="hidden lg:table-cell">
                         {createdByUser ? createdByUser.name : "—"}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden md:table-cell">
                         {assignedUser ? assignedUser.name : "—"}
                       </TableCell>
                       <TableCell className="text-right">
@@ -349,7 +349,7 @@ const Tasks = () => {
       {/* Modal Crear/Editar */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-black rounded-lg shadow-lg p-6 w-full max-w-lg">
+          <div className="bg-card border-border rounded-lg shadow-lg p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold mb-4">
               {editingTask ? "Editar Tarea" : "Nueva Tarea"}
             </h2>

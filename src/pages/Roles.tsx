@@ -38,6 +38,14 @@ const Roles = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,6 +126,47 @@ const Roles = () => {
       role.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Modal handlers
+  const handleNewRole = () => {
+    setEditingRole(null);
+    setFormData({ name: "", description: "" });
+    setShowModal(true);
+  };
+
+  const handleEditRole = (role: Role) => {
+    setEditingRole(role);
+    setFormData({ name: role.name, description: role.description || "" });
+    setShowModal(true);
+  };
+
+  const handleSaveRole = async () => {
+    try {
+      if (editingRole) {
+        const updated = await roleService.updateRole(editingRole.id, formData as Role);
+        if (updated) {
+          setRoles(roles.map((r) => (r.id === updated.id ? updated : r)));
+        }
+      } else {
+        const created = await roleService.addRole(formData as Role);
+        if (created) {
+          setRoles([...roles, created]);
+        }
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error guardando rol:", error);
+    }
+  };
+
+  const handleDeleteRole = async (id: string) => {
+    try {
+      await roleService.deleteRole(id);
+      setRoles(roles.filter((r) => r.id !== id));
+    } catch (error) {
+      console.error("Error eliminando rol:", error);
+    }
+  };
+
   if (loading) return <p className="text-center">Cargando roles...</p>;
 
   return (
@@ -131,7 +180,7 @@ const Roles = () => {
             Administra roles y permisos del sistema
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
+        <Button onClick={handleNewRole} className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Rol
         </Button>
@@ -179,13 +228,14 @@ const Roles = () => {
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditRole(role)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => handleDeleteRole(role.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -318,6 +368,7 @@ const Roles = () => {
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 p-0"
+                            onClick={() => handleEditRole(role)}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -325,6 +376,7 @@ const Roles = () => {
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={() => handleDeleteRole(role.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -338,6 +390,37 @@ const Roles = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Crear/Editar */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border-border rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">
+              {editingRole ? "Editar Rol" : "Nuevo Rol"}
+            </h2>
+            <div className="space-y-3">
+              <Input
+                placeholder="Nombre del rol"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              <Input
+                placeholder="Descripción"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveRole}>
+                {editingRole ? "Actualizar" : "Crear"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

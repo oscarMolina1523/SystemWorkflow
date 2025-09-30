@@ -41,6 +41,14 @@ const Areas = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -71,6 +79,47 @@ const Areas = () => {
     area.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Modal handlers
+  const handleNewArea = () => {
+    setEditingArea(null);
+    setFormData({ title: "", description: "" });
+    setShowModal(true);
+  };
+
+  const handleEditArea = (area: Area) => {
+    setEditingArea(area);
+    setFormData({ title: area.title, description: area.description || "" });
+    setShowModal(true);
+  };
+
+  const handleSaveArea = async () => {
+    try {
+      if (editingArea) {
+        const updated = await areaService.updateArea(editingArea.id, formData as Area);
+        if (updated) {
+          setAreas(areas.map((a) => (a.id === updated.id ? updated : a)));
+        }
+      } else {
+        const created = await areaService.addArea(formData as Area);
+        if (created) {
+          setAreas([...areas, created]);
+        }
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error guardando área:", error);
+    }
+  };
+
+  const handleDeleteArea = async (id: string) => {
+    try {
+      await areaService.deleteArea(id);
+      setAreas(areas.filter((a) => a.id !== id));
+    } catch (error) {
+      console.error("Error eliminando área:", error);
+    }
+  };
+
   if (loading) {
     return <p className="text-center">Cargando datos...</p>;
   }
@@ -84,7 +133,7 @@ const Areas = () => {
             Administra las áreas y departamentos de la organización
           </p>
         </div>
-        <Button className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
+        <Button onClick={handleNewArea} className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Nueva Área
         </Button>
@@ -125,10 +174,10 @@ const Areas = () => {
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditArea(area)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDeleteArea(area.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -228,10 +277,10 @@ const Areas = () => {
                     </TableCell>
                     <TableCell className="text-right p-4">
                       <div className="flex justify-end gap-1 sm:gap-2">
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditArea(area)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDeleteArea(area.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -244,6 +293,37 @@ const Areas = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal Crear/Editar */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border-border rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">
+              {editingArea ? "Editar Área" : "Nueva Área"}
+            </h2>
+            <div className="space-y-3">
+              <Input
+                placeholder="Título del área"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+              <Input
+                placeholder="Descripción"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveArea}>
+                {editingArea ? "Actualizar" : "Crear"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
