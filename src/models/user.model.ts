@@ -73,6 +73,7 @@ export class User extends BaseModel {
     return {
       name: this.name,
       email: this.email,
+      password: this.password,
       areaId: this.areaId,
       roleId: this.roleId,
     };

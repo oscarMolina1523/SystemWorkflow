@@ -50,6 +50,7 @@ const Users = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "123456789",
     roleId: "",
     areaId: "",
   });
@@ -109,7 +110,7 @@ const Users = () => {
   // Modal handlers
   const handleNewUser = () => {
     setEditingUser(null);
-    setFormData({ name: "", email: "", roleId: "", areaId: "" });
+    setFormData({ name: "", email: "", roleId: "", areaId: "", password: "123456789" });
     setShowModal(true);
   };
 
@@ -119,7 +120,8 @@ const Users = () => {
       name: user.name, 
       email: user.email, 
       roleId: user.roleId, 
-      areaId: user.areaId 
+      areaId: user.areaId ,
+      password: "123456789"
     });
     setShowModal(true);
   };
@@ -128,15 +130,13 @@ const Users = () => {
     try {
       if (editingUser) {
         const updated = await userService.updateUser(editingUser.id, formData as User);
-        if (updated) {
-          setUsers(users.map((u) => (u.id === updated.id ? updated : u)));
-        }
+        
       } else {
         const created = await userService.addUser(formData as User);
-        if (created) {
-          setUsers([...users, created]);
-        }
+        
       }
+      const userData = await userService.getUsers();
+      setUsers(userData);
       setShowModal(false);
     } catch (error) {
       console.error("Error guardando usuario:", error);
