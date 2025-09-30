@@ -21,11 +21,10 @@ export default class TaskService extends HTTPService {
     return Task.fromJson(item);
   }
 
-  async getByTaskByArea() {
-    const item = await super.get(`${this.path}`);
-    if (!item) return null;
-
-    return Task.fromJson(item);
+  async getTaskByArea() {
+    const response = await super.get(`${this.path}/area`);
+    const data = response.data || []; // siempre aseguramos array
+    return data.map((item: any) => Task.fromJson(item));
   }
 
   async getTasksPendingValidation() {
@@ -53,7 +52,7 @@ export default class TaskService extends HTTPService {
     return Task.fromJson(json);
   }
 
-  async deleteTask(id: string) : Promise<boolean> {
+  async deleteTask(id: string): Promise<boolean> {
     await super.delete(`${this.path}/${id}`);
     return true;
   }

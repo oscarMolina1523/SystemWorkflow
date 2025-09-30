@@ -56,12 +56,21 @@ const Tasks = () => {
     createdBy: "",
   });
 
-  // Cargar datos iniciales
+  const fetchTasks = async (): Promise<Task[]> => {
+    const hostname = window.location.hostname;
+
+    return hostname === "evolutionsystem.sbs" ||
+      hostname === "www.evolutionsystem.sbs"
+      ? await taskService.getTasks()
+      : await taskService.getTaskByArea();
+  };
+
+  // ---- useEffect con fetchTasks ----
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [tasksData, usersData, areasData] = await Promise.all([
-          taskService.getTasks(),
+          fetchTasks(),
           userService.getUsers(),
           areaService.getAreas(),
         ]);
@@ -161,7 +170,7 @@ const Tasks = () => {
           ...formData,
         });
       }
-      const tasksData = await taskService.getTasks();
+      const tasksData = await fetchTasks();
       setTasks(tasksData);
       setShowModal(false);
     } catch (error) {
