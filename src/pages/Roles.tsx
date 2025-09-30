@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -11,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { 
-  Plus, 
+import {
+  Plus,
   Search,
   Edit,
   Trash2,
@@ -21,17 +21,41 @@ import {
   Crown,
   Eye,
   Settings,
-  Code
+  Code,
 } from "lucide-react";
-import { mockRoles, mockUsers } from "@/data/mockData";
+//import { mockRoles, mockUsers } from "@/data/mockData";
+
+import RoleService from "@/services/role.service";
+import UserService from "@/services/user.service";
+import Role from "@/models/role.model";
+import { User } from "@/models/user.model";
+
+const roleService = new RoleService();
+const userService = new UserService();
 
 const Roles = () => {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const filteredRoles = mockRoles.filter(role => {
-    return role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           role.description?.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [rolesData, usersData] = await Promise.all([
+          roleService.getRoles(),
+          userService.getUsers(),
+        ]);
+        setRoles(rolesData);
+        setUsers(usersData);
+      } catch (error) {
+        console.error("Error cargando roles y usuarios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const getRoleIcon = (roleName: string) => {
     switch (roleName) {
@@ -66,7 +90,14 @@ const Roles = () => {
   const getRolePermissions = (roleName: string) => {
     switch (roleName) {
       case "ADMIN":
-        return ["Crear", "Editar", "Eliminar", "Ver Todo", "Gestionar Usuarios", "Configuración"];
+        return [
+          "Crear",
+          "Editar",
+          "Eliminar",
+          "Ver Todo",
+          "Gestionar Usuarios",
+          "Configuración",
+        ];
       case "MANAGER":
         return ["Crear", "Editar", "Ver Todo", "Gestionar Tareas"];
       case "DEVELOPER":
@@ -78,15 +109,24 @@ const Roles = () => {
     }
   };
 
-  const getUsersWithRole = (roleId: string) => {
-    return mockUsers.filter(user => user.roleId === roleId);
-  };
+  const getUsersWithRole = (roleId: string) =>
+    users.filter((u) => u.roleId === roleId);
+
+  const filteredRoles = roles.filter(
+    (role) =>
+      role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) return <p className="text-center">Cargando roles...</p>;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Gestión de Roles</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Gestión de Roles
+          </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             Administra roles y permisos del sistema
           </p>
@@ -119,7 +159,10 @@ const Roles = () => {
           const permissions = getRolePermissions(role.name);
 
           return (
-            <Card key={role.id} className="bg-card border-border shadow-elegant hover:shadow-glow transition-all group">
+            <Card
+              key={role.id}
+              className="bg-card border-border shadow-elegant hover:shadow-glow transition-all group"
+            >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -127,21 +170,29 @@ const Roles = () => {
                       {getRoleIcon(role.name)}
                     </div>
                     <div className="min-w-0">
-                      <CardTitle className="text-lg sm:text-xl truncate">{role.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">ID: {role.id}</p>
+                      <CardTitle className="text-lg sm:text-xl truncate">
+                        {role.name}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        ID: {role.id}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="outline" size="sm" className="h-8 w-8 p-0">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 {role.description && (
                   <p className="text-sm text-muted-foreground">
@@ -152,9 +203,12 @@ const Roles = () => {
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50">
                   <Users className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <div className="text-sm font-medium">{usersWithRole.length} usuarios</div>
+                    <div className="text-sm font-medium">
+                      {usersWithRole.length} usuarios
+                    </div>
                     <div className="text-xs text-muted-foreground break-words">
-                      {usersWithRole.map(u => u.name).join(", ") || "Sin usuarios asignados"}
+                      {usersWithRole.map((u) => u.name).join(", ") ||
+                        "Sin usuarios asignados"}
                     </div>
                   </div>
                 </div>
@@ -163,16 +217,18 @@ const Roles = () => {
                   <div className="text-sm font-medium">Permisos:</div>
                   <div className="flex flex-wrap gap-1">
                     {permissions.map((permission) => (
-                      <Badge key={permission} variant="outline" className="text-xs">
+                      <Badge
+                        key={permission}
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {permission}
                       </Badge>
                     ))}
                   </div>
                 </div>
 
-                <Badge className={getRoleColor(role.name)}>
-                  {role.name}
-                </Badge>
+                <Badge className={getRoleColor(role.name)}>{role.name}</Badge>
               </CardContent>
             </Card>
           );
@@ -182,9 +238,7 @@ const Roles = () => {
       {/* Roles Table */}
       <Card className="bg-card border-border shadow-elegant">
         <CardHeader>
-          <CardTitle>
-            Resumen de Roles ({filteredRoles.length})
-          </CardTitle>
+          <CardTitle>Resumen de Roles ({filteredRoles.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -192,66 +246,94 @@ const Roles = () => {
               <TableHeader>
                 <TableRow className="border-border">
                   <TableHead className="min-w-[150px]">Rol</TableHead>
-                  <TableHead className="min-w-[200px] hidden sm:table-cell">Descripción</TableHead>
+                  <TableHead className="min-w-[200px] hidden sm:table-cell">
+                    Descripción
+                  </TableHead>
                   <TableHead className="min-w-[100px]">Usuarios</TableHead>
-                  <TableHead className="min-w-[150px] hidden md:table-cell">Permisos</TableHead>
-                  <TableHead className="min-w-[100px] text-right">Acciones</TableHead>
+                  <TableHead className="min-w-[150px] hidden md:table-cell">
+                    Permisos
+                  </TableHead>
+                  <TableHead className="min-w-[100px] text-right">
+                    Acciones
+                  </TableHead>
                 </TableRow>
               </TableHeader>
-            <TableBody>
-              {filteredRoles.map((role) => {
-                const usersWithRole = getUsersWithRole(role.id);
-                const permissions = getRolePermissions(role.name);
+              <TableBody>
+                {filteredRoles.map((role) => {
+                  const usersWithRole = getUsersWithRole(role.id);
+                  const permissions = getRolePermissions(role.name);
 
-                return (
-                  <TableRow key={role.id} className="border-border hover:bg-muted/50">
-                    <TableCell className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
-                          {getRoleIcon(role.name)}
+                  return (
+                    <TableRow
+                      key={role.id}
+                      className="border-border hover:bg-muted/50"
+                    >
+                      <TableCell className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
+                            {getRoleIcon(role.name)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium truncate">
+                              {role.name}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              ID: {role.id}
+                            </div>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <div className="font-medium truncate">{role.name}</div>
-                          <div className="text-sm text-muted-foreground">ID: {role.id}</div>
+                      </TableCell>
+                      <TableCell className="p-4 hidden sm:table-cell">
+                        <span className="text-sm">
+                          {role.description || "-"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="p-4">
+                        <Badge variant="outline" className="text-xs">
+                          {usersWithRole.length} usuario
+                          {usersWithRole.length !== 1 ? "s" : ""}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="p-4 hidden md:table-cell">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {permissions.slice(0, 3).map((permission) => (
+                            <Badge
+                              key={permission}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {permission}
+                            </Badge>
+                          ))}
+                          {permissions.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{permissions.length - 3}
+                            </Badge>
+                          )}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="p-4 hidden sm:table-cell">
-                      <span className="text-sm">{role.description || "-"}</span>
-                    </TableCell>
-                    <TableCell className="p-4">
-                      <Badge variant="outline" className="text-xs">
-                        {usersWithRole.length} usuario{usersWithRole.length !== 1 ? 's' : ''}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="p-4 hidden md:table-cell">
-                      <div className="flex flex-wrap gap-1 max-w-xs">
-                        {permissions.slice(0, 3).map((permission) => (
-                          <Badge key={permission} variant="outline" className="text-xs">
-                            {permission}
-                          </Badge>
-                        ))}
-                        {permissions.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{permissions.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right p-4">
-                      <div className="flex justify-end gap-1 sm:gap-2">
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
+                      </TableCell>
+                      <TableCell className="text-right p-4">
+                        <div className="flex justify-end gap-1 sm:gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
             </Table>
           </div>
         </CardContent>
