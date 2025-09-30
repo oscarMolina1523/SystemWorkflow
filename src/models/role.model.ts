@@ -40,7 +40,6 @@ export default class Role extends BaseModel {
   // Convierte el modelo en DTO (lo que mandas al backend con los nombres correctos de campos)
   toJsonDTO() {
     return {
-      id: this.id,
       name: this.name,
       description: this.description,
     };

@@ -71,7 +71,6 @@ export class User extends BaseModel {
   // Convierte User en objeto plano para enviar al backend
   toJsonDTO() {
     return {
-      id: this.id,
       name: this.name,
       email: this.email,
       password: this.password,
