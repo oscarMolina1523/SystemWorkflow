@@ -156,17 +156,13 @@ const Tasks = () => {
     try {
       if (editingTask) {
         const updated = await taskService.updateTask(editingTask.id, formData);
-        if (updated) {
-          setTasks(tasks.map((t) => (t.id === updated.id ? updated : t)));
-        }
       } else {
         const created = await taskService.addTask({
           ...formData,
         });
-        if (created) {
-          setTasks([...tasks, created]);
-        }
       }
+      const tasksData = await taskService.getTasks();
+      setTasks(tasksData);
       setShowModal(false);
     } catch (error) {
       console.error("Error guardando tarea:", error);
@@ -311,7 +307,7 @@ const Tasks = () => {
                       <TableCell className="hidden sm:table-cell">
                         {area?.title || "—"}
                       </TableCell>
-                       <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {createdByUser ? createdByUser.name : "—"}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
