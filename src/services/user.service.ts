@@ -28,7 +28,7 @@ export default class UserService extends HTTPService {
     return User.fromJson(item);
   }
 
-  async addUser(user: User) {
+  async addUser(user: Partial<User>) {
     // construye el body que se enviará al backend
     const body = User.fromJsonModel(user).toJsonDTO();
     // envía la petición
