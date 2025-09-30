@@ -8,7 +8,7 @@ import {
   LogOut,
   Settings,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import {
   Sidebar,
@@ -47,6 +47,16 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // 1. Borrar token
+    localStorage.removeItem("authToken");
+
+    // 2. Redirigir a login
+    navigate("/", { replace: true });
+  };
 
   // const hostname = window.location.hostname;
   // const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
@@ -148,10 +158,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         <button
           className={`${getNavCls({ isActive: false })} w-full justify-start`}
-          onClick={() => {
-            // Handle logout
-            console.log("Logout clicked");
-          }}
+           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           {!collapsed && <span>Cerrar Sesión</span>}

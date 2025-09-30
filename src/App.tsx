@@ -11,6 +11,7 @@ import Users from "./pages/Users";
 import Areas from "./pages/Areas";
 import Roles from "./pages/Roles";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./hooks/protectedRoutes";
 
 const queryClient = new QueryClient();
 
@@ -22,11 +23,11 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/tasks" element={<Layout><Tasks /></Layout>} />
-          <Route path="/users" element={<Layout><Users /></Layout>} />
-          <Route path="/areas" element={<Layout><Areas /></Layout>} />
-          <Route path="/roles" element={<Layout><Roles /></Layout>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+          <Route path="/tasks" element={<ProtectedRoute><Layout><Tasks /></Layout></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute><Layout><Users /></Layout></ProtectedRoute>} />
+          <Route path="/areas" element={<ProtectedRoute><Layout><Areas /></Layout></ProtectedRoute>} />
+          <Route path="/roles" element={<ProtectedRoute><Layout><Roles /></Layout></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
