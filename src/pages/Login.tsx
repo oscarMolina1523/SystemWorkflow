@@ -29,7 +29,7 @@ const Login = () => {
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       const areaId = DomainService.getAreaId(hostname);
-      areaIdRef.current = areaId;
+      areaIdRef.current = "eedf2407cc75b66c";
 
       if (
         hostname === "evolutionsystem.sbs" ||

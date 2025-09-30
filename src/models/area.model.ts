@@ -41,7 +41,6 @@ export default class Area extends BaseModel {
   // DTO → Objeto que viaja hacia el backend con los nombres correctos de los campos.
   toJsonDTO() {
     return {
-      id: this.id,
       title: this.title,
       description: this.description,
     };

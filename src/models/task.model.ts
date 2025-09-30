@@ -80,7 +80,6 @@ export default class Task extends BaseModel {
   // Convierte Task en objeto plano para enviar al backend
   toJsonDTO() {
     return {
-      id: this.id,
       title: this.title,
       status: this.status,
       areaId: this.areaId,
