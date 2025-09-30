@@ -33,6 +33,11 @@ const navigationItems = [
   { title: "Roles", url: "/roles", icon: ShieldCheck },
 ];
 
+
+const allowedDomainsForFullAccess = [
+  "evolutionsystem.sbs",
+  "www.evolutionsystem.sbs",
+];
 // const bottomItems = [
 //   { title: "Configuración", url: "/settings", icon: Settings },
 // ];
@@ -43,6 +48,9 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
+  const hostname = window.location.hostname;
+  const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
+
   const isActive = (path: string) => currentPath === path;
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
@@ -51,6 +59,12 @@ export function AppSidebar() {
         ? "bg-gradient-primary text-primary-foreground shadow-glow font-medium" 
         : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
     }`;
+  
+  const filteredNavigationItems = navigationItems.filter((item) => {
+    if (isMainDomain) return true; // si es el dominio principal, todo
+    // si no, solo mostramos Dashboard y Tareas
+    return item.url === "/dashboard" || item.url === "/tasks";
+  });
 
   return (
     <Sidebar
@@ -86,7 +100,7 @@ export function AppSidebar() {
 
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {filteredNavigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
