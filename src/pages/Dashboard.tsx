@@ -85,10 +85,12 @@ const Dashboard = () => {
         return "Completada";
       case Status.IN_PROGRESS:
         return "En Progreso";
-      case Status.IN_PROGRESS:
-        return "Pendiente";
       case Status.REJECTED:
         return "Cancelada";
+      case Status.PENDING:
+        return "Pendiente";
+      case Status.PENDING_VALIDATION:
+        return "Pendiente de Validación";
       default:
         return status;
     }

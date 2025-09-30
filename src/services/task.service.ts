@@ -35,7 +35,7 @@ export default class TaskService extends HTTPService {
     return Task.fromJson(item);
   }
 
-  async addTask(task: Task) {
+  async addTask(task: Partial<Task>) {
     // construye el body que se enviará al backend
     const body = Task.fromJsonModel(task).toJsonDTO();
     // envía la petición al backend
@@ -45,7 +45,7 @@ export default class TaskService extends HTTPService {
     return Task.fromJson(result);
   }
 
-  async updateTask(id: string, task: Task) {
+  async updateTask(id: string, task: Partial<Task>) {
     const body = Task.fromJsonModel(task).toJsonDTO();
     const json = await super.put(`${this.path}/${id}`, body);
     if (!json) return null;
@@ -53,7 +53,8 @@ export default class TaskService extends HTTPService {
     return Task.fromJson(json);
   }
 
-  async deleteTask(id: string) {
+  async deleteTask(id: string) : Promise<boolean> {
     await super.delete(`${this.path}/${id}`);
+    return true;
   }
 }
