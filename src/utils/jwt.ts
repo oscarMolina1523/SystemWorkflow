@@ -4,7 +4,6 @@ export interface DecodedUser {
   id: string;
   name: string;
   email: string;
-  password: string;
   areaId: string;
   roleId: string;
 }
