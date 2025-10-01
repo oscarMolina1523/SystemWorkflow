@@ -27,6 +27,7 @@ import TaskService from "@/services/task.service";
 import UserService from "@/services/user.service";
 import AreaService from "@/services/area.service";
 import { User } from "@/models/user.model";
+import DomainService from "@/services/domain.service";
 
 // Inicializamos servicios
 const taskService = new TaskService();
@@ -57,10 +58,9 @@ const Tasks = () => {
   });
 
   const fetchTasks = async (): Promise<Task[]> => {
-    const hostname = window.location.hostname;
+    const hostname = DomainService.isMainDomain(window.location.hostname);
 
-    return hostname === "evolutionsystem.sbs" ||
-      hostname === "www.evolutionsystem.sbs"
+    return hostname
       ? await taskService.getTasks()
       : await taskService.getTaskByArea();
   };

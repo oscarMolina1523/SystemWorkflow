@@ -61,7 +61,7 @@ export function AppSidebar() {
   // const hostname = window.location.hostname;
   // const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
   const areaId = DomainService.getAreaId(window.location.hostname);
-  const isMainDomain = areaId === "eedf2407cc75b66c"; // valor del dominio principal
+  const isMainDomain = DomainService.isMainDomain(window.location.hostname);
 
   const isActive = (path: string) => currentPath === path;
 

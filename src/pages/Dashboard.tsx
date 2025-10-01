@@ -28,9 +28,7 @@ const Dashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
 
-  const isMainDomain =
-    window.location.hostname === "evolutionsystem.sbs" ||
-    window.location.hostname === "www.evolutionsystem.sbs";
+  const isMainDomain = DomainService.isMainDomain(window.location.hostname);
 
   const sucursales = DomainService.getAreas();
 
@@ -133,7 +131,9 @@ const Dashboard = () => {
             >
               <Card className="hover:shadow-lg cursor-pointer transition-all">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{sucursal}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {sucursal}
+                  </CardTitle>
                   <Building className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>

@@ -9,6 +9,10 @@ export default class DomainService {
   };
 
   static getAreaId(hostname: string): string | null {
+    if (hostname.startsWith("localhost")) {
+      return this.domainMap["evolutionsystem.sbs"];
+    }
+
     for (const key in this.domainMap) {
       if (hostname === key || hostname.startsWith(key)) {
         return this.domainMap[key];
@@ -21,6 +25,15 @@ export default class DomainService {
     // Solo devuelve las áreas (excluye el dominio principal)
     return Object.keys(this.domainMap).filter(
       (domain) => !["evolutionsystem.sbs", "www.evolutionsystem.sbs"].includes(domain)
+    );
+  }
+
+  static isMainDomain(hostname: string): boolean {
+    return (
+      hostname === "evolutionsystem.sbs" ||
+      hostname === "www.evolutionsystem.sbs" ||
+      hostname.startsWith("localhost") ||
+      hostname === "127.0.0.1"
     );
   }
 }
