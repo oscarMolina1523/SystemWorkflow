@@ -40,6 +40,7 @@ const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [usersByArea, setUsersByArea] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   // filtros
@@ -87,6 +88,22 @@ const Tasks = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!formData.areaId) {
+      setUsersByArea([]); // si no hay área seleccionada, vacía el select
+      setFormData({ ...formData, assignedTo: "" }); // limpia asignado
+      return;
+    }
+
+    const filtered = users.filter((u) => u.areaId === formData.areaId);
+    setUsersByArea(filtered);
+
+    // si el usuario seleccionado no pertenece a la nueva área, limpiar
+    if (!filtered.find((u) => u.id === formData.assignedTo)) {
+      setFormData({ ...formData, assignedTo: "" });
+    }
+  }, [formData.areaId, users]);
 
   // helpers
   const getUserById = (id: string) => users.find((u) => u.id === id);
@@ -415,12 +432,13 @@ const Tasks = () => {
                 onValueChange={(val) =>
                   setFormData({ ...formData, assignedTo: val })
                 }
+                disabled={!formData.areaId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Asignado a" />
                 </SelectTrigger>
                 <SelectContent>
-                  {users.map((u) => (
+                  {usersByArea.map((u) => (
                     <SelectItem key={u.id} value={u.id}>
                       {u.name}
                     </SelectItem>
