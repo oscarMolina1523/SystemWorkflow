@@ -50,7 +50,7 @@ const Users = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "123456789",
+    password: "",
     roleId: "",
     areaId: "",
   });
@@ -110,7 +110,7 @@ const Users = () => {
   // Modal handlers
   const handleNewUser = () => {
     setEditingUser(null);
-    setFormData({ name: "", email: "", roleId: "", areaId: "", password: "123456789" });
+    setFormData({ name: "", email: "", roleId: "", areaId: "", password: "" });
     setShowModal(true);
   };
 
@@ -121,7 +121,7 @@ const Users = () => {
       email: user.email, 
       roleId: user.roleId, 
       areaId: user.areaId ,
-      password: "123456789"
+      password: user.password
     });
     setShowModal(true);
   };
@@ -317,6 +317,12 @@ const Users = () => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <Input
+                placeholder="Password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
               <Select
                 value={formData.roleId}
