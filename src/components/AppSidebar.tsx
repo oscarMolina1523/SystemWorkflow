@@ -25,6 +25,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import DomainService from "@/services/domain.service";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -43,6 +44,7 @@ const navigationItems = [
 // ];
 
 export function AppSidebar() {
+  const { permissions } = useRolePermissions();
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -73,9 +75,7 @@ export function AppSidebar() {
     }`;
 
   const filteredNavigationItems = navigationItems.filter((item) => {
-    if (isMainDomain) return true; // si es el dominio principal, todo
-    // si no, solo mostramos Dashboard y Tareas
-    return item.url === "/dashboard" || item.url === "/tasks";
+    return permissions.includes(item.url)
   });
 
   return (

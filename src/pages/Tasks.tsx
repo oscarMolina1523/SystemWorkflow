@@ -28,6 +28,7 @@ import UserService from "@/services/user.service";
 import AreaService from "@/services/area.service";
 import { User } from "@/models/user.model";
 import DomainService from "@/services/domain.service";
+import { getUserFromToken } from "@/utils/jwt";
 
 // Inicializamos servicios
 const taskService = new TaskService();
@@ -35,6 +36,7 @@ const userService = new UserService();
 const areaService = new AreaService();
 
 const Tasks = () => {
+  const user = getUserFromToken();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -141,7 +143,7 @@ const Tasks = () => {
       status: Status.PENDING,
       areaId: "",
       assignedTo: "",
-      createdBy: "",
+      createdBy: user.id,
     });
     setShowModal(true);
   };
@@ -431,7 +433,7 @@ const Tasks = () => {
                   setFormData({ ...formData, createdBy: val })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger disabled>
                   <SelectValue placeholder="Creado por" />
                 </SelectTrigger>
                 <SelectContent>
