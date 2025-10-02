@@ -21,6 +21,14 @@ export default class UserService extends HTTPService {
     return User.fromJson(item);
   }
 
+  async getByAreaId(id: string) {
+    const item = await super.get(`${this.path}/area`);
+    if (!item) return null;
+
+    const usersArray = item.data || [];
+    return usersArray.map((item: any) => User.fromJson(item));
+  }
+
   async getByEmail(email: string) {
     const item = await super.get(`${this.path}/email/${email}`);
     if (!item) return null;

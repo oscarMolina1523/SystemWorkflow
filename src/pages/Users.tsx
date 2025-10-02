@@ -29,6 +29,8 @@ import Area from "@/models/area.model";
 import UserService from "@/services/user.service";
 import RoleService from "@/services/role.service";
 import AreaService from "@/services/area.service";
+import { getUserFromToken } from "@/utils/jwt";
+import { seedRoles } from "@/data/role.data";
 
 
 const userService = new UserService();
@@ -36,6 +38,7 @@ const roleService = new RoleService();
 const areaService = new AreaService();
 
 const Users = () => {
+  const loggedUser = getUserFromToken();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -50,31 +53,57 @@ const Users = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "123456789",
+    password: "",
     roleId: "",
     areaId: "",
   });
+  
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRolesAreas = async () => {
       try {
-        const [usersRes, rolesRes, areasRes] = await Promise.all([
-          userService.getUsers(),
+        const [rolesRes, areasRes] = await Promise.all([
           roleService.getRoles(),
           areaService.getAreas(),
         ]);
-        setUsers(usersRes);
         setRoles(rolesRes);
         setAreas(areasRes);
       } catch (error) {
-        console.error("Error cargando datos:", error);
+        console.error("Error cargando roles o áreas:", error);
+      }
+    };
+
+    fetchRolesAreas();
+  }, []);
+
+  // Obtener usuarios según el rol del usuario logueado
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const adminRoleId = seedRoles.find(r => r.name === "ADMIN")?.id;
+        const managerRoleId = seedRoles.find(r => r.name === "MANAGER")?.id;
+
+        if (loggedUser.roleId === adminRoleId) {
+          // ADMIN → todos los usuarios
+          const allUsers = await userService.getUsers();
+          setUsers(allUsers);
+        } else if (loggedUser.roleId === managerRoleId && loggedUser.areaId) {
+          // MANAGER → usuarios de su área
+          const usersByArea = await userService.getByAreaId(loggedUser.areaId);
+          setUsers(usersByArea);
+        } else {
+          // Otros roles → no ver usuarios
+          setUsers([]);
+        }
+      } catch (error) {
+        console.error("Error cargando usuarios según rol:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchUsers();
+  }, [loggedUser.roleId, loggedUser.areaId]);
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -110,7 +139,7 @@ const Users = () => {
   // Modal handlers
   const handleNewUser = () => {
     setEditingUser(null);
-    setFormData({ name: "", email: "", roleId: "", areaId: "", password: "123456789" });
+    setFormData({ name: "", email: "", roleId: "", areaId: "", password: "" });
     setShowModal(true);
   };
 
@@ -121,7 +150,7 @@ const Users = () => {
       email: user.email, 
       roleId: user.roleId, 
       areaId: user.areaId ,
-      password: "123456789"
+      password: user.password
     });
     setShowModal(true);
   };
@@ -317,6 +346,12 @@ const Users = () => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <Input
+                placeholder="Password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
               <Select
                 value={formData.roleId}

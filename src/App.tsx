@@ -12,6 +12,7 @@ import Areas from "./pages/Areas";
 import Roles from "./pages/Roles";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./hooks/protectedRoutes";
+import LogsPage from "./pages/Logs";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/users" element={<ProtectedRoute><Layout><Users /></Layout></ProtectedRoute>} />
           <Route path="/areas" element={<ProtectedRoute><Layout><Areas /></Layout></ProtectedRoute>} />
           <Route path="/roles" element={<ProtectedRoute><Layout><Roles /></Layout></ProtectedRoute>} />
+          <Route path="/logs" element={<ProtectedRoute><Layout><LogsPage /></Layout></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

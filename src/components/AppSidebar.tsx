@@ -25,6 +25,8 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import DomainService from "@/services/domain.service";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
+import { getUserFromToken } from "@/utils/jwt";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -32,6 +34,7 @@ const navigationItems = [
   { title: "Usuarios", url: "/users", icon: Users },
   { title: "Áreas", url: "/areas", icon: Building },
   { title: "Roles", url: "/roles", icon: ShieldCheck },
+  { title: "Logs", url: "/logs", icon: Settings },
 ];
 
 // const allowedDomainsForFullAccess = [
@@ -43,10 +46,12 @@ const navigationItems = [
 // ];
 
 export function AppSidebar() {
+  const { permissions } = useRolePermissions();
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+  const user =getUserFromToken()
 
   const navigate = useNavigate();
 
@@ -61,7 +66,7 @@ export function AppSidebar() {
   // const hostname = window.location.hostname;
   // const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
   const areaId = DomainService.getAreaId(window.location.hostname);
-  const isMainDomain = areaId === "eedf2407cc75b66c"; // valor del dominio principal
+  const isMainDomain = DomainService.isMainDomain(window.location.hostname);
 
   const isActive = (path: string) => currentPath === path;
 
@@ -73,9 +78,7 @@ export function AppSidebar() {
     }`;
 
   const filteredNavigationItems = navigationItems.filter((item) => {
-    if (isMainDomain) return true; // si es el dominio principal, todo
-    // si no, solo mostramos Dashboard y Tareas
-    return item.url === "/dashboard" || item.url === "/tasks";
+    return permissions.includes(item.url)
   });
 
   return (
@@ -95,7 +98,7 @@ export function AppSidebar() {
               <h2 className="text-lg font-semibold text-sidebar-foreground">
                 TaskFlow
               </h2>
-              <p className="text-xs text-muted-foreground">Admin Panel</p>
+              <p className="text-xs text-muted-foreground">{user.name} Panel</p>
             </div>
           </div>
         )}
