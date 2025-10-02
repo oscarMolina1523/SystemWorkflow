@@ -27,6 +27,12 @@ export default class TaskService extends HTTPService {
     return data.map((item: any) => Task.fromJson(item));
   }
 
+  async getTaskByUserId() {
+    const response = await super.get(`${this.path}/user`);
+    const data = response.data || []; // siempre aseguramos array
+    return data.map((item: any) => Task.fromJson(item));
+  }
+
   async getTasksPendingValidation() {
     const item = await super.get(`${this.path}`);
     if (!item) return null;
