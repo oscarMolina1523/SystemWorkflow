@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import DomainService from "@/services/domain.service";
 import { useRolePermissions } from "@/hooks/useRolePermissions";
+import { getUserFromToken } from "@/utils/jwt";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -49,6 +50,7 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+  const user =getUserFromToken()
 
   const navigate = useNavigate();
 
@@ -95,7 +97,7 @@ export function AppSidebar() {
               <h2 className="text-lg font-semibold text-sidebar-foreground">
                 TaskFlow
               </h2>
-              <p className="text-xs text-muted-foreground">Admin Panel</p>
+              <p className="text-xs text-muted-foreground">{user.name} Panel</p>
             </div>
           </div>
         )}
