@@ -10,7 +10,7 @@ export default class DomainService {
 
   static getAreaId(hostname: string): string | null {
     if (hostname.startsWith("localhost")) {
-      return this.domainMap["jinotepe."];
+      return this.domainMap["evolutionsystem.sbs"];
     }
 
     for (const key in this.domainMap) {

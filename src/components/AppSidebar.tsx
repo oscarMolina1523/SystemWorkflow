@@ -34,6 +34,7 @@ const navigationItems = [
   { title: "Usuarios", url: "/users", icon: Users },
   { title: "Áreas", url: "/areas", icon: Building },
   { title: "Roles", url: "/roles", icon: ShieldCheck },
+  { title: "Logs", url: "/logs", icon: Settings },
 ];
 
 // const allowedDomainsForFullAccess = [
