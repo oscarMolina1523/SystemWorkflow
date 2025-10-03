@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { io } from "socket.io-client";
 import {
   Select,
   SelectContent,
@@ -29,6 +30,7 @@ import AreaService from "@/services/area.service";
 import { User } from "@/models/user.model";
 import DomainService from "@/services/domain.service";
 import { getUserFromToken } from "@/utils/jwt";
+import { API_BASE_URL } from "@/services/api";
 
 // Inicializamos servicios
 const taskService = new TaskService();
@@ -87,6 +89,27 @@ const Tasks = () => {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const socket = io(API_BASE_URL, {
+      transports: ["websocket"], // fuerza websocket (opcional, mejora estabilidad)
+    }); // Cambia por tu backend URL si es remoto
+
+    socket.on("connect", () => {
+      console.log("Conectado a Socket.IO, id:", socket.id);
+    });
+
+    socket.on("taskUpdated", async (data) => {
+      console.log("Evento taskUpdated recibido:", data);
+      // Recargamos las tareas en tiempo real
+      const tasksData = await fetchTasks();
+      setTasks(tasksData);
+    });
+
+    return () => {
+      socket.disconnect(); // Limpiamos al desmontar
+    };
   }, []);
 
   useEffect(() => {
