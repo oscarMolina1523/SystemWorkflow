@@ -1,4 +1,3 @@
-// src/hooks/useTasks.ts
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import Task from "@/models/task.model";
@@ -72,7 +71,27 @@ export const useTasks = () => {
     fetchData();
   }, []);
 
-  
+  // socket realtime
+  useEffect(() => {
+    const socket = io(API_BASE_URL, {
+      transports: ["websocket"], // fuerza websocket (opcional, mejora estabilidad)
+    }); // Cambia por tu backend URL si es remoto
+
+    socket.on("connect", () => {
+      console.log("Conectado a Socket.IO, id:", socket.id);
+    });
+
+    socket.on("taskUpdated", async (data) => {
+      console.log("Evento taskUpdated recibido:", data);
+      // Recargamos las tareas en tiempo real
+      const tasksData = await fetchTasks();
+      setTasks(tasksData);
+    });
+
+    return () => {
+      socket.disconnect(); // Limpiamos al desmontar
+    };
+  }, []);
 
   // filtrar usuarios por área
   useEffect(() => {
@@ -156,8 +175,6 @@ export const useTasks = () => {
   return {
     loading,
     tasks: filteredTasks,
-    setTasks,
-    fetchTasks,
     users,
     areas,
     usersByArea,
