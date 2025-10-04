@@ -136,7 +136,7 @@ const LogsPage = () => {
                     <TableCell className="p-4">{log.action}</TableCell>
                     <TableCell className="p-4">{getAreaName(log.areaId)}</TableCell>
                     <TableCell className="p-4 hidden sm:table-cell">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {new Date(log.timestamp).toLocaleString()} 
                     </TableCell>
                   </TableRow>
                 ))}
