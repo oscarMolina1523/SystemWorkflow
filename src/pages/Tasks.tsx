@@ -27,6 +27,7 @@ const Tasks = () => {
     loading,
     tasks: filteredTasks,
     users,
+    role,
     areas,
     usersByArea,
     searchTerm,
@@ -118,6 +119,7 @@ const Tasks = () => {
           </p>
         </div>
         <Button
+          disabled={role === "viewer"}
           onClick={handleNewTask}
           className="bg-gradient-primary shadow-glow hover:shadow-elegant transition-all w-full sm:w-auto"
         >
@@ -159,7 +161,7 @@ const Tasks = () => {
               </SelectContent>
             </Select>
 
-            <Select value={areaFilter} onValueChange={setAreaFilter}>
+            <Select disabled={role !== "admin"} value={areaFilter} onValueChange={setAreaFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Área" />
               </SelectTrigger>
@@ -236,6 +238,7 @@ const Tasks = () => {
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
+                            disabled={role === "viewer"}
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 p-0"
@@ -244,6 +247,7 @@ const Tasks = () => {
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
+                            disabled={role === "viewer"}
                             variant="outline"
                             size="sm"
                             className="h-8 w-8 p-0 text-destructive hover:bg-destructive hover:text-destructive-foreground"
@@ -308,7 +312,7 @@ const Tasks = () => {
                   setFormData({ ...formData, areaId: val })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger disabled={role !== "admin"}>
                   <SelectValue placeholder="Área" />
                 </SelectTrigger>
                 <SelectContent>

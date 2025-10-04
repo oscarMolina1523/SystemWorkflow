@@ -19,6 +19,10 @@ const areaService = new AreaService();
 export const useTasks = () => {
   const user = getUserFromToken();
 
+  const isAdmin = user.roleId === "2d5c7f8e-1b3a-4c9d-8f0a-7e6b5a4d3c2b";
+  const isViewer = user.roleId === "d9e8f7g6-5h4i-3j2k-1l0m-9n8o7p6q5r4s";
+  const role = isAdmin ? "admin" : isViewer ? "viewer" : "user";
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
@@ -111,24 +115,30 @@ export const useTasks = () => {
   const getUserById = (id: string) => users.find((u) => u.id === id);
   const getAreaById = (id: string) => areas.find((a) => a.id === id);
 
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || task.status === statusFilter;
-    const matchesArea = areaFilter === "all" || task.areaId === areaFilter;
-    return matchesSearch && matchesStatus && matchesArea;
-  });
+  const filteredTasks = tasks
+    .filter((task) => {
+      const matchesSearch =
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || task.status === statusFilter;
+      const matchesArea = areaFilter === "all" || task.areaId === areaFilter;
+      return matchesSearch && matchesStatus && matchesArea;
+    })
+    .filter((task) => {
+      if (isAdmin) return true; // Admin ve todo
+      return task.areaId === user.areaId; // No-admin solo su área
+    });
 
   // acciones
   const handleNewTask = () => {
+    if (isViewer) return; // viewers no crean tareas
     setEditingTask(null);
     setFormData({
       title: "",
       description: "",
       status: Status.PENDING,
-      areaId: "",
+      areaId: isAdmin ? "" : user.areaId, // no-admin fija su área
       assignedTo: "",
       createdBy: user.id,
     });
@@ -136,6 +146,8 @@ export const useTasks = () => {
   };
 
   const handleEditTask = (task: Task) => {
+    if (isViewer) return; // viewers no editan
+    if (!isAdmin && task.areaId !== user.areaId) return; // no-admin solo su área
     setEditingTask(task);
     setFormData({
       title: task.title,
@@ -164,6 +176,7 @@ export const useTasks = () => {
   };
 
   const handleDeleteTask = async (id: string) => {
+    if (isViewer) return;
     try {
       const ok = await taskService.deleteTask(id);
       if (ok) setTasks(tasks.filter((t) => t.id !== id));
@@ -176,6 +189,7 @@ export const useTasks = () => {
     loading,
     tasks: filteredTasks,
     users,
+    role,
     areas,
     usersByArea,
     searchTerm,
