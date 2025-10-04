@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { io } from "socket.io-client";
 import {
   Select,
   SelectContent,
@@ -21,128 +19,35 @@ import {
 } from "@/components/ui/table";
 import { Plus, Search, Filter, Edit, Trash2, Eye } from "lucide-react";
 import { Status } from "@/models/status.enum";
-import Task from "@/models/task.model";
 
-import Area from "@/models/area.model";
-import TaskService from "@/services/task.service";
-import UserService from "@/services/user.service";
-import AreaService from "@/services/area.service";
-import { User } from "@/models/user.model";
-import DomainService from "@/services/domain.service";
-import { getUserFromToken } from "@/utils/jwt";
-import { API_BASE_URL } from "@/services/api";
-
-// Inicializamos servicios
-const taskService = new TaskService();
-const userService = new UserService();
-const areaService = new AreaService();
+import { useTasks } from "@/hooks/useTasks";
 
 const Tasks = () => {
-  const user = getUserFromToken();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [usersByArea, setUsersByArea] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    loading,
+    tasks: filteredTasks,
+    users,
+    areas,
+    usersByArea,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    areaFilter,
+    setAreaFilter,
+    showModal,
+    setShowModal,
+    formData,
+    setFormData,
+    editingTask,
+    handleNewTask,
+    handleEditTask,
+    handleSaveTask,
+    handleDeleteTask,
+    getUserById,
+    getAreaById,
+  } = useTasks();
 
-  // filtros
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [areaFilter, setAreaFilter] = useState<string>("all");
-
-  // modal
-  const [showModal, setShowModal] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    status: Status.PENDING,
-    areaId: "",
-    assignedTo: "",
-    createdBy: "",
-  });
-
-  const fetchTasks = async (): Promise<Task[]> => {
-    const hostname = DomainService.isMainDomain(window.location.hostname);
-
-    return hostname
-      ? await taskService.getTasks()
-      : await taskService.getTaskByArea();
-  };
-
-  // ---- useEffect con fetchTasks ----
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tasksData, usersData, areasData] = await Promise.all([
-          fetchTasks(),
-          userService.getUsers(),
-          areaService.getAreas(),
-        ]);
-        setTasks(tasksData);
-        setUsers(usersData);
-        setAreas(areasData);
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const socket = io(API_BASE_URL, {
-      transports: ["websocket"], // fuerza websocket (opcional, mejora estabilidad)
-    }); // Cambia por tu backend URL si es remoto
-
-    socket.on("connect", () => {
-      console.log("Conectado a Socket.IO, id:", socket.id);
-    });
-
-    socket.on("taskUpdated", async (data) => {
-      console.log("Evento taskUpdated recibido:", data);
-      // Recargamos las tareas en tiempo real
-      const tasksData = await fetchTasks();
-      setTasks(tasksData);
-    });
-
-    return () => {
-      socket.disconnect(); // Limpiamos al desmontar
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!formData.areaId) {
-      setUsersByArea([]); // si no hay área seleccionada, vacía el select
-      setFormData({ ...formData, assignedTo: "" }); // limpia asignado
-      return;
-    }
-
-    const filtered = users.filter((u) => u.areaId === formData.areaId);
-    setUsersByArea(filtered);
-
-    // si el usuario seleccionado no pertenece a la nueva área, limpiar
-    if (!filtered.find((u) => u.id === formData.assignedTo)) {
-      setFormData({ ...formData, assignedTo: "" });
-    }
-  }, [formData.areaId, users]);
-
-  // helpers
-  const getUserById = (id: string) => users.find((u) => u.id === id);
-  const getAreaById = (id: string) => areas.find((a) => a.id === id);
-
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" || task.status === statusFilter;
-    const matchesArea = areaFilter === "all" || task.areaId === areaFilter;
-
-    return matchesSearch && matchesStatus && matchesArea;
-  });
 
   const getStatusColor = (status: Status) => {
     switch (status) {
@@ -174,63 +79,6 @@ const Tasks = () => {
     }
   };
 
-  // Abrir modal crear
-  const handleNewTask = () => {
-    setEditingTask(null);
-    setFormData({
-      title: "",
-      description: "",
-      status: Status.PENDING,
-      areaId: "",
-      assignedTo: "",
-      createdBy: user.id,
-    });
-    setShowModal(true);
-  };
-
-  // Abrir modal editar
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setFormData({
-      title: task.title,
-      description: task.description || "",
-      status: task.status,
-      areaId: task.areaId,
-      assignedTo: task.assignedTo,
-      createdBy: task.createdBy,
-    });
-    setShowModal(true);
-  };
-
-  // Guardar (crear o editar)
-  const handleSaveTask = async () => {
-    try {
-      if (editingTask) {
-        await taskService.updateTask(editingTask.id, formData);
-      } else {
-        await taskService.addTask({
-          ...formData,
-        });
-      }
-      const tasksData = await fetchTasks();
-      setTasks(tasksData);
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error guardando tarea:", error);
-    }
-  };
-
-  // Eliminar
-  const handleDeleteTask = async (id: string) => {
-    try {
-      const ok = await taskService.deleteTask(id);
-      if (ok) {
-        setTasks(tasks.filter((t) => t.id !== id));
-      }
-    } catch (error) {
-      console.error("Error eliminando tarea:", error);
-    }
-  };
 
   if (loading) {
     return <p className="text-center">Cargando datos...</p>;
