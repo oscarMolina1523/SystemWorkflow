@@ -48,6 +48,11 @@ const Login = () => {
     const password = passwordRef.current?.value || "";
     const areaId = areaIdRef.current || "0";
 
+    if (password.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
     if (!email || !password) {
       console.error("El email y la contraseña son obligatorios.");
       return;
