@@ -1,15 +1,29 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Search, Filter } from "lucide-react";
 import LogModel from "@/models/log.model";
 import Area from "@/models/area.model";
-import {User} from "@/models/user.model";
+import { User } from "@/models/user.model";
 import LogService from "@/services/log.service";
 import AreaService from "@/services/area.service";
 import UserService from "@/services/user.service";
+import { Button } from "@/components/ui/button";
 
 const logService = new LogService();
 const areaService = new AreaService();
@@ -22,6 +36,9 @@ const LogsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [areaFilter, setAreaFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +66,7 @@ const LogsPage = () => {
           data = await logService.getLogByArea(areaFilter);
         }
         setLogs(data);
+        setCurrentPage(1);
       } catch (error) {
         console.error("Error cargando logs:", error);
       } finally {
@@ -59,13 +77,21 @@ const LogsPage = () => {
     fetchLogs();
   }, [areaFilter]);
 
-  const filteredLogs = logs.filter(log =>
-    log.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.action.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredLogs = logs.filter(
+    (log) =>
+      log.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.action.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getUserName = (id: string) => users.find(u => u.id === id)?.name || id;
-  const getAreaName = (id: string) => areas.find(a => a.id === id)?.title || id;
+  const getUserName = (id: string) =>
+    users.find((u) => u.id === id)?.name || id;
+  const getAreaName = (id: string) =>
+    areas.find((a) => a.id === id)?.title || id;
+
+  // 🔹 calcular paginación
+  const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentLogs = filteredLogs.slice(startIndex, startIndex + itemsPerPage);
 
   if (loading) {
     return (
@@ -98,7 +124,9 @@ const LogsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Logs del Sistema</h1>
-        <p className="text-muted-foreground text-sm">Revisa las acciones realizadas por los usuarios</p>
+        <p className="text-muted-foreground text-sm">
+          Revisa las acciones realizadas por los usuarios
+        </p>
       </div>
 
       {/* Filtros */}
@@ -141,7 +169,10 @@ const LogsPage = () => {
       {/* Tabla de Logs */}
       <Card className="bg-card border-border shadow-elegant">
         <CardHeader>
-          <CardTitle>Logs ({filteredLogs.length})</CardTitle>
+          <CardTitle>
+            {" "}
+            Logs ({filteredLogs.length}) — Página {currentPage} de {totalPages}
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -151,17 +182,26 @@ const LogsPage = () => {
                   <TableHead className="min-w-[150px]">Usuario</TableHead>
                   <TableHead className="min-w-[150px]">Acción</TableHead>
                   <TableHead className="min-w-[150px]">Área</TableHead>
-                  <TableHead className="min-w-[150px] hidden sm:table-cell">Fecha</TableHead>
+                  <TableHead className="min-w-[150px] hidden sm:table-cell">
+                    Fecha
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLogs.map((log) => (
-                  <TableRow key={log.id} className="border-border hover:bg-muted/50">
-                    <TableCell className="p-4">{getUserName(log.userId)}</TableCell>
+                {currentLogs.map((log) => (
+                  <TableRow
+                    key={log.id}
+                    className="border-border hover:bg-muted/50"
+                  >
+                    <TableCell className="p-4">
+                      {getUserName(log.userId)}
+                    </TableCell>
                     <TableCell className="p-4">{log.action}</TableCell>
-                    <TableCell className="p-4">{getAreaName(log.areaId)}</TableCell>
+                    <TableCell className="p-4">
+                      {getAreaName(log.areaId)}
+                    </TableCell>
                     <TableCell className="p-4 hidden sm:table-cell">
-                      {new Date(log.timestamp).toLocaleString()} 
+                      {new Date(log.timestamp).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -169,6 +209,26 @@ const LogsPage = () => {
             </Table>
           </div>
         </CardContent>
+        {/* Controles de paginación */}
+        <div className="flex justify-between items-center p-4 border-t border-border">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Siguiente
+          </Button>
+        </div>
       </Card>
     </div>
   );
