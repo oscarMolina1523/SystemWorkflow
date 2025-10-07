@@ -13,6 +13,7 @@ import DomainService from "@/services/domain.service";
 const authService = new AuthService();
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const areaIdRef = useRef<string | null>(null);
   const [allowRegister, setAllowRegister] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
@@ -43,6 +44,7 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     const email = emailRef.current?.value || "";
     const password = passwordRef.current?.value || "";
@@ -86,8 +88,37 @@ const Login = () => {
       alert(
         error.response?.data?.message || error.message || "Error desconocido"
       );
+    } finally {
+      setLoading(false); // <-- desactivamos loading
     }
   };
+
+   if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <svg
+          className="w-12 h-12 text-blue-500 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-dark p-4">
@@ -239,6 +270,7 @@ const Login = () => {
             <Button
               type="submit"
               className="w-full bg-gradient-primary shadow-glow hover:shadow-elegant transition-all"
+              disabled={loading}
             >
               {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
             </Button>
