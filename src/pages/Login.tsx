@@ -7,8 +7,7 @@ import { CheckSquare, Mail, Lock, User } from "lucide-react";
 import AuthService from "@/services/auth.service";
 import { useNavigate } from "react-router-dom";
 import DomainService from "@/services/domain.service";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { mockData } from "@/data/mockData";
+
 
 const authService = new AuthService();
 
@@ -22,8 +21,7 @@ const Login = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  // const [selectedAreaId, setSelectedAreaId] = useState("");
-  // const [selectedRoleId, setSelectedRoleId] = useState("");
+
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -52,11 +50,13 @@ const Login = () => {
 
     if (password.length < 6) {
       alert("La contraseña debe tener al menos 6 caracteres.");
+      setLoading(false);
       return;
     }
 
     if (!email || !password) {
       console.error("El email y la contraseña son obligatorios.");
+      setLoading(false);
       return;
     }
 
@@ -233,40 +233,6 @@ const Login = () => {
                     />
                   </div>
                 </div>
-
-                {/* <div className="space-y-2">
-                  <Label htmlFor="area">Área</Label>
-                  <Select value={selectedAreaId} onValueChange={setSelectedAreaId} required={!isLogin}>
-                    <SelectTrigger className="pl-9">
-                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Selecciona un área" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockData.areas.map((area) => (
-                        <SelectItem key={area.id} value={area.id}>
-                          {area.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="role">Rol</Label>
-                  <Select value={selectedRoleId} onValueChange={setSelectedRoleId} required={!isLogin}>
-                    <SelectTrigger className="pl-9">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Selecciona un rol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockData.roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.nameRef}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div> */}
               </>
             )}
 
