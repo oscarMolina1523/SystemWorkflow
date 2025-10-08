@@ -7,22 +7,20 @@ import { CheckSquare, Mail, Lock, User } from "lucide-react";
 import AuthService from "@/services/auth.service";
 import { useNavigate } from "react-router-dom";
 import DomainService from "@/services/domain.service";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { mockData } from "@/data/mockData";
 
 const authService = new AuthService();
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const areaIdRef = useRef<string | null>(null);
   const [allowRegister, setAllowRegister] = useState(true);
+  const [isMainDomain, setIsMainDomain] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  // const [selectedAreaId, setSelectedAreaId] = useState("");
-  // const [selectedRoleId, setSelectedRoleId] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -30,12 +28,11 @@ const Login = () => {
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       const areaId = DomainService.getAreaId(hostname);
+      const isDomain = DomainService.isMainDomain(hostname);
       areaIdRef.current = areaId;
 
-      if (
-        hostname === "evolutionsystem.sbs" ||
-        hostname === "www.evolutionsystem.sbs"
-      ) {
+      if (isDomain) {
+        setIsMainDomain(isDomain);
         setAllowRegister(false);
         setIsLogin(true); // Forzar vista de login
       }
@@ -51,12 +48,14 @@ const Login = () => {
     const areaId = areaIdRef.current || "0";
 
     if (password.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres.");
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      setLoading(false);
       return;
     }
 
     if (!email || !password) {
-      console.error("El email y la contraseña son obligatorios.");
+      setError("El email y la contraseña son obligatorios.");
+      setLoading(false);
       return;
     }
 
@@ -70,9 +69,7 @@ const Login = () => {
         const confirmPassword = confirmPasswordRef.current?.value || "";
 
         if (!name || password !== confirmPassword) {
-          console.error(
-            "Nombre es obligatorio y las contraseñas no coinciden."
-          );
+          setError("Nombre es obligatorio y las contraseñas no coinciden.");
           return;
         }
 
@@ -81,19 +78,16 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (error: any) {
-      console.error(
-        "Error en login/registro:",
-        error.response?.data || error.message || error
-      );
-      alert(
-        error.response?.data?.message || error.message || "Error desconocido"
+      setError(
+        `Error en login/registro:
+        Los credenciales no son validos en esta sucursal`
       );
     } finally {
       setLoading(false); // <-- desactivamos loading
     }
   };
 
-   if (loading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <svg
@@ -134,36 +128,40 @@ const Login = () => {
             <p className="text-muted-foreground">
               {isLogin ? "Ingresa para acceder al panel" : "Crea tu cuenta"}
             </p>
+            {error && <span className="text-red-600">{error}</span>}
           </div>
         </CardHeader>
 
         <CardContent>
-          <div className="flex mb-6 bg-muted rounded-lg p-1">
-            <button
-              type="button"
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                isLogin
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Iniciar Sesión
-            </button>
-            {allowRegister && (
+          {!isMainDomain && (
+            <div className="flex mb-6 bg-muted rounded-lg p-1">
               <button
                 type="button"
-                onClick={() => setIsLogin(false)}
+                onClick={() => setIsLogin(true)}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  !isLogin
+                  isLogin
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Registrarse
+                Iniciar Sesión
               </button>
-            )}
-          </div>
+              {allowRegister && (
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(false)}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                    !isLogin
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Registrarse
+                </button>
+              )}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && allowRegister && (
               <div className="space-y-2">
@@ -230,40 +228,6 @@ const Login = () => {
                     />
                   </div>
                 </div>
-
-                {/* <div className="space-y-2">
-                  <Label htmlFor="area">Área</Label>
-                  <Select value={selectedAreaId} onValueChange={setSelectedAreaId} required={!isLogin}>
-                    <SelectTrigger className="pl-9">
-                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Selecciona un área" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockData.areas.map((area) => (
-                        <SelectItem key={area.id} value={area.id}>
-                          {area.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="role">Rol</Label>
-                  <Select value={selectedRoleId} onValueChange={setSelectedRoleId} required={!isLogin}>
-                    <SelectTrigger className="pl-9">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <SelectValue placeholder="Selecciona un rol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockData.roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.nameRef}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div> */}
               </>
             )}
 
@@ -275,6 +239,14 @@ const Login = () => {
               {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
             </Button>
           </form>
+          <br/>
+          {isMainDomain && (
+            <div>
+              <span>Credenciales para demo</span>
+              <p>email: test@gmail.com</p>
+              <p>password: 123456789</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
