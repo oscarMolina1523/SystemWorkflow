@@ -8,11 +8,11 @@ import AuthService from "@/services/auth.service";
 import { useNavigate } from "react-router-dom";
 import DomainService from "@/services/domain.service";
 
-
 const authService = new AuthService();
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const areaIdRef = useRef<string | null>(null);
   const [allowRegister, setAllowRegister] = useState(true);
   const [isMainDomain, setIsMainDomain] = useState(false);
@@ -21,7 +21,6 @@ const Login = () => {
   const passwordRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
-
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -49,13 +48,13 @@ const Login = () => {
     const areaId = areaIdRef.current || "0";
 
     if (password.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres.");
+      setError("La contraseña debe tener al menos 6 caracteres.");
       setLoading(false);
       return;
     }
 
     if (!email || !password) {
-      console.error("El email y la contraseña son obligatorios.");
+      setError("El email y la contraseña son obligatorios.");
       setLoading(false);
       return;
     }
@@ -70,9 +69,7 @@ const Login = () => {
         const confirmPassword = confirmPasswordRef.current?.value || "";
 
         if (!name || password !== confirmPassword) {
-          console.error(
-            "Nombre es obligatorio y las contraseñas no coinciden."
-          );
+          setError("Nombre es obligatorio y las contraseñas no coinciden.");
           return;
         }
 
@@ -81,12 +78,9 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (error: any) {
-      console.error(
-        "Error en login/registro:",
-        error.response?.data || error.message || error
-      );
-      alert(
-        error.response?.data?.message || error.message || "Error desconocido"
+      setError(
+        `Error en login/registro:
+        Los credenciales no son validos en esta sucursal`
       );
     } finally {
       setLoading(false); // <-- desactivamos loading
@@ -134,6 +128,7 @@ const Login = () => {
             <p className="text-muted-foreground">
               {isLogin ? "Ingresa para acceder al panel" : "Crea tu cuenta"}
             </p>
+            {error && <span className="text-red-600">{error}</span>}
           </div>
         </CardHeader>
 
@@ -244,6 +239,14 @@ const Login = () => {
               {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
             </Button>
           </form>
+          <br/>
+          {isMainDomain && (
+            <div>
+              <span>Credenciales para demo</span>
+              <p>email: test@gmail.com</p>
+              <p>password: 123456789</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
