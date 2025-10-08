@@ -16,6 +16,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const areaIdRef = useRef<string | null>(null);
   const [allowRegister, setAllowRegister] = useState(true);
+  const [isMainDomain, setIsMainDomain] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -30,12 +31,11 @@ const Login = () => {
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       const areaId = DomainService.getAreaId(hostname);
+      const isDomain = DomainService.isMainDomain(hostname);
       areaIdRef.current = areaId;
 
-      if (
-        hostname === "evolutionsystem.sbs" ||
-        hostname === "www.evolutionsystem.sbs"
-      ) {
+      if (isDomain) {
+        setIsMainDomain(isDomain);
         setAllowRegister(false);
         setIsLogin(true); // Forzar vista de login
       }
@@ -93,7 +93,7 @@ const Login = () => {
     }
   };
 
-   if (loading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <svg
@@ -138,32 +138,35 @@ const Login = () => {
         </CardHeader>
 
         <CardContent>
-          <div className="flex mb-6 bg-muted rounded-lg p-1">
-            <button
-              type="button"
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                isLogin
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Iniciar Sesión
-            </button>
-            {allowRegister && (
+          {!isMainDomain && (
+            <div className="flex mb-6 bg-muted rounded-lg p-1">
               <button
                 type="button"
-                onClick={() => setIsLogin(false)}
+                onClick={() => setIsLogin(true)}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  !isLogin
+                  isLogin
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Registrarse
+                Iniciar Sesión
               </button>
-            )}
-          </div>
+              {allowRegister && (
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(false)}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                    !isLogin
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Registrarse
+                </button>
+              )}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && allowRegister && (
               <div className="space-y-2">
