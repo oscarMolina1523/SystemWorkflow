@@ -1,12 +1,4 @@
-import {
-  LayoutDashboard,
-  CheckSquare,
-  Users,
-  Building,
-  ShieldCheck,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { CheckSquare, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 import {
@@ -18,36 +10,25 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { useRolePermissions } from "@/hooks/useRolePermissions";
 import { getUserFromToken } from "@/utils/jwt";
-
-const navigationItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Tareas", url: "/tasks", icon: CheckSquare },
-  { title: "Usuarios", url: "/users", icon: Users },
-  { title: "Áreas", url: "/areas", icon: Building },
-  { title: "Roles", url: "/roles", icon: ShieldCheck },
-  { title: "Logs", url: "/logs", icon: Settings },
-];
+import { navigationItems } from "@/data/navigation.data";
 
 export function AppSidebar() {
   const { permissions } = useRolePermissions();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const user =getUserFromToken()
+  const user = getUserFromToken();
 
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // 1. Borrar token
     localStorage.removeItem("authToken");
 
-    // 2. Redirigir a login
     navigate("/", { replace: true });
   };
 
@@ -59,7 +40,7 @@ export function AppSidebar() {
     }`;
 
   const filteredNavigationItems = navigationItems.filter((item) => {
-    return permissions.includes(item.url)
+    return permissions.includes(item.url);
   });
 
   return (
@@ -122,7 +103,7 @@ export function AppSidebar() {
       <SidebarFooter className="p-4">
         <button
           className={`${getNavCls({ isActive: false })} w-full justify-start`}
-           onClick={handleLogout}
+          onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           {!collapsed && <span>Cerrar Sesión</span>}
