@@ -51,31 +51,22 @@ export function AppSidebar() {
       //collapsible="icon"
     >
       <SidebarHeader className="p-4">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <CheckSquare className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-sidebar-foreground">
-                TaskFlow
-              </h2>
-              <p className="text-xs text-muted-foreground">{user.name} Panel</p>
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+            <CheckSquare className="h-5 w-5 text-primary-foreground" />
           </div>
-        )}
-        {collapsed && (
-          <div className="flex justify-center">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <CheckSquare className="h-5 w-5 text-primary-foreground" />
-            </div>
+          <div>
+            <h2 className="text-lg font-semibold text-sidebar-foreground">
+              TaskFlow
+            </h2>
+            <p className="text-xs text-muted-foreground">{user.name} Panel</p>
           </div>
-        )}
+        </div>
       </SidebarHeader>
 
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+          <SidebarGroupLabel>
             Navegación Principal
           </SidebarGroupLabel>
 
@@ -90,7 +81,7 @@ export function AppSidebar() {
                       className={({ isActive }) => getNavCls({ isActive })}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -106,7 +97,7 @@ export function AppSidebar() {
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
-          {!collapsed && <span>Cerrar Sesión</span>}
+           <span>Cerrar Sesión</span>
         </button>
       </SidebarFooter>
     </Sidebar>
