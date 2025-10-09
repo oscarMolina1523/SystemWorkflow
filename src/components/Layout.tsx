@@ -14,7 +14,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <header className="h-16 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm px-4 sm:px-6">
             <SidebarTrigger className="text-foreground hover:bg-muted rounded-md p-2" />
             <div className="flex items-center gap-4">
-              <div className="text-sm text-muted-foreground hidden sm:block">
+              <div className="text-sm text-muted-foreground block">
                 Bienvenido, {user.name}
               </div>
             </div>

@@ -1,3 +1,5 @@
+import { DomainInfo } from "@/models/domain.model";
+
 export default class DomainService {
   private static domainMap: Record<string, string> = {
     "evolutionsystem.sbs": "eedf2407cc75b66c",
@@ -8,17 +10,24 @@ export default class DomainService {
     "chinandega.": "f3d9e0b1-2c8f-4a3d-8e7c-4a1b2c3d4e5f",
   };
 
-  static getAreaId(hostname: string): string | null {
-    if (hostname.startsWith("localhost")) {
-      return this.domainMap["evolutionsystem.sbs"];
+  static getDomainInfo(): DomainInfo {
+    if (typeof window === "undefined") {
+      return { hostname: "", areaId: null, isMainDomain: false };
     }
+
+    const hostname = window.location.hostname;
+    const isMainDomain = this.isMainDomain(hostname);
 
     for (const key in this.domainMap) {
       if (hostname === key || hostname.startsWith(key)) {
-        return this.domainMap[key];
+        return {
+          hostname,
+          areaId: this.domainMap[key],
+          isMainDomain,
+        };
       }
     }
-    return null;
+    return { hostname, areaId: null, isMainDomain };
   }
 
   static getAreas() {
@@ -31,9 +40,9 @@ export default class DomainService {
   static isMainDomain(hostname: string): boolean {
     return (
       hostname === "evolutionsystem.sbs" ||
-      hostname === "www.evolutionsystem.sbs" 
-      // hostname.startsWith("localhost") ||
-      // hostname === "127.0.0.1"
+      hostname === "www.evolutionsystem.sbs" ||
+      hostname.startsWith("localhost") ||
+      hostname === "127.0.0.1"
     );
   }
 }

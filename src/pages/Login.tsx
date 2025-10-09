@@ -11,11 +11,10 @@ import DomainService from "@/services/domain.service";
 const authService = new AuthService();
 
 const Login = () => {
+  const { areaId, isMainDomain } = DomainService.getDomainInfo();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const areaIdRef = useRef<string | null>(null);
-  const [allowRegister, setAllowRegister] = useState(true);
-  const [isMainDomain, setIsMainDomain] = useState(false);
+  const [allowRegister, setAllowRegister] = useState(!isMainDomain);
   const [isLogin, setIsLogin] = useState(true);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -23,21 +22,7 @@ const Login = () => {
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
-  useEffect(() => {
-    // Verificar si estamos en el cliente y acceder a la URL
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      const areaId = DomainService.getAreaId(hostname);
-      const isDomain = DomainService.isMainDomain(hostname);
-      areaIdRef.current = areaId;
 
-      if (isDomain) {
-        setIsMainDomain(isDomain);
-        setAllowRegister(false);
-        setIsLogin(true); // Forzar vista de login
-      }
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +30,7 @@ const Login = () => {
 
     const email = emailRef.current?.value || "";
     const password = passwordRef.current?.value || "";
-    const areaId = areaIdRef.current || "0";
+    //const areaId = areaIdRef.current || "0";
 
     if (password.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres.");
