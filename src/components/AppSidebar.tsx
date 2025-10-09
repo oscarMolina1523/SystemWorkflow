@@ -48,7 +48,7 @@ export function AppSidebar() {
       className={`${
         collapsed ? "w-14" : "w-64"
       } border-r border-sidebar-border bg-sidebar`}
-      collapsible="icon"
+      //collapsible="icon"
     >
       <SidebarHeader className="p-4">
         {!collapsed && (
