@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   LayoutDashboard,
   CheckSquare,
@@ -8,7 +7,7 @@ import {
   LogOut,
   Settings,
 } from "lucide-react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import {
   Sidebar,
@@ -24,7 +23,6 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import DomainService from "@/services/domain.service";
 import { useRolePermissions } from "@/hooks/useRolePermissions";
 import { getUserFromToken } from "@/utils/jwt";
 
@@ -37,19 +35,9 @@ const navigationItems = [
   { title: "Logs", url: "/logs", icon: Settings },
 ];
 
-// const allowedDomainsForFullAccess = [
-//   "evolutionsystem.sbs",
-//   "www.evolutionsystem.sbs",
-// ];
-// const bottomItems = [
-//   { title: "Configuración", url: "/settings", icon: Settings },
-// ];
-
 export function AppSidebar() {
   const { permissions } = useRolePermissions();
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
   const collapsed = state === "collapsed";
   const user =getUserFromToken()
 
@@ -62,13 +50,6 @@ export function AppSidebar() {
     // 2. Redirigir a login
     navigate("/", { replace: true });
   };
-
-  // const hostname = window.location.hostname;
-  // const isMainDomain = allowedDomainsForFullAccess.includes(hostname);
-  const areaId = DomainService.getAreaId(window.location.hostname);
-  const isMainDomain = DomainService.isMainDomain(window.location.hostname);
-
-  const isActive = (path: string) => currentPath === path;
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 rounded-lg px-3 py-2 transition-all duration-300 ${
@@ -133,26 +114,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* {bottomItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={({ isActive }) => getNavCls({ isActive })}
-                    >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))} */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
